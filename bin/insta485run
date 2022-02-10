@@ -1,0 +1,20 @@
+#!/bin/bash
+# insta485db
+
+# stop on errors
+set -Eeuo pipefail
+set -x
+
+# call insta485db create if db does not exist
+if [ ! -f "var/insta485.sqlite3" ]
+then
+    ./bin/insta485db create
+else 
+    echo "Error: databse already exists"
+    exit
+fi
+
+# set her up
+export FLASK_ENV=development
+export FLASK_APP=insta485
+flask run --host 0.0.0.0 --port 8000
