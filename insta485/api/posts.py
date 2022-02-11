@@ -2,29 +2,27 @@
 import flask
 import insta485
 
+"""
+notes on authentication with http
+
+
+"""
+
+@insta485.app.route('/api/v1/posts/', methods=['GET'])
+def get_posts():
+  """Return the 10 newests posts"""
+  # 1. CHECK AUTHENTIFICATION
+  # 2. Get 10 newests posts (should be the 10 highest postid's)
+  # note postid is an int!
+  # the "next" attribute should contain the URL of the next page
+  # of posts, using arguments size, page, and postid_lte
+  # so, next should have the size, page, and the next post ? idk
+  context = {}
+  return flask.jsonify(**context)
+
 
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
 def get_post(postid_url_slug):
-    """Return post on postid.
-
-    Example:
-    {
-      "created": "2017-09-28 04:33:28",
-      "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",
-      "owner": "awdeorio",
-      "ownerImgUrl": "/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg",
-      "ownerShowUrl": "/users/awdeorio/",
-      "postShowUrl": "/posts/1/",
-      "url": "/api/v1/posts/1/"
-    }
-    """
-    context = {
-        "created": "2017-09-28 04:33:28",
-        "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",
-        "owner": "awdeorio",
-        "ownerImgUrl": "/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg",
-        "ownerShowUrl": "/users/awdeorio/",
-        "postid": "/posts/{}/".format(postid_url_slug),
-        "url": flask.request.path,
-    }
+    """Return post on postid."""
+    context = {}
     return flask.jsonify(**context)
