@@ -7,7 +7,8 @@ for good requests, I think 200 for return content, 204 for good delete, but chec
 import flask
 import insta485
 import sqlite3
-from insta485.api.helper import check_authentication
+from insta485.api.helper import check_authentication, get_likes
+from insta485.api.helper import get_all_comments
 
 """
 URLs in this file:
@@ -44,36 +45,36 @@ def get_posts():
 
 
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/', methods=['GET'])
-def get_post():
+def get_post(postid_url_slug):
     """Return post on postid."""
     check_authentication()
     # connect to database
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
     # get likes and comments
-    likes, logname_liked = get_likes(post_url_slug, connection)
-    comments = get_all_comments(post_url_slug, connection)
+    likes, logname_liked = get_likes(postid_url_slug, connection)
+    comments = get_all_comments(postid_url_slug, connection)
     logname = flask.session['logname']
     post = connection.execute(
         "SELECT P.owner, P.filename as im, P.created, U.filename "
         "FROM posts P, users U "
         "WHERE P.postid = ? AND U.username = P.owner",
-        (post_url_slug, )
+        (postid_url_slug, )
     ).fetchall()
     # if there is no post, abort
     if not post:
-        return flask.abort(404)
+        return flask.jsonify(**{'message': 'Not Found'}), 404
     # build context and render
     context = {
         'logname': logname,
-        'postid': post_url_slug,
+        'postid': postid_url_slug,
         "owner": post[0][0],
         "owner_img_url": post[0][3],
         "img_url": post[0][1],
-        "timestamp": arrow.get(post[0][2]).to('US/Eastern').humanize(),
+        "timestamp": post[0][2],
         "likes": len(likes),
         "comments": comments,
         "logname_liked": logname_liked
     }
-    return flask.render_template("post.html", **context)
-    return flask.jsonify(**context)
+    # return context, and good response code
+    return flask.jsonify(**context), 200
