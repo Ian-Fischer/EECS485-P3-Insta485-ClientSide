@@ -1,6 +1,12 @@
 """REST API for posts."""
+"""
+FLASK RESPONSE CODES! 
+bad requests should take form of {'message': 'what was wrong', 'code': flaskcode}
+for good requests, I think 200 for return content, 204 for good delete, but check spec
+"""
 import flask
 import insta485
+from insta485.api.helper import check_authentication
 
 """
 URLs in this file:
@@ -12,6 +18,7 @@ URLs in this file:
 @insta485.app.route('/api/v1/posts/', methods=['GET'])
 def get_posts():
   """Return the 10 newests posts"""
+  check_authentication()
   # 1. CHECK AUTHENTIFICATION
   # 2. Get 10 newests posts (should be the 10 highest postid's)
   #    Posts need to be the logged in user or someone he follows
@@ -38,6 +45,7 @@ def get_posts():
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/', methods=['GET'])
 def get_post(postid_url_slug):
     """Return post on postid."""
+    check_authentication()
     # again, postid is an int
     # need all the as p2, but it's important to note
     # that the time stored in the db is not humanized

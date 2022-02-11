@@ -1,4 +1,9 @@
 """Handle /api/v1/ URL."""
+"""
+FLASK RESPONSE CODES! 
+bad requests should take form of {'message': 'what was wrong', 'code': flaskcode}
+for good requests, I think 200 for return content, 204 for good delete, but check spec
+"""
 import flask
 import insta485
 

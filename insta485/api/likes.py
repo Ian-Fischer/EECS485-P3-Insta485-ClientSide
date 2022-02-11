@@ -1,6 +1,12 @@
 """Handles like endpoints."""
+"""
+FLASK RESPONSE CODES! 
+bad requests should take form of {'message': 'what was wrong', 'code': flaskcode}
+for good requests, I think 200 for return content, 204 for good delete, but check spec
+"""
 import flask
 import insta485
+from insta485.api.helper import check_authentication
 
 
 """
@@ -16,3 +22,4 @@ def make_like():
     # postid is an arg ?postid=<postid>
     # TODO: what do we do if the argument is not specified?
     # 1. check authentication
+    check_authentication()
