@@ -6,6 +6,7 @@ for good requests, I think 200 for return content, 204 for good delete, but chec
 """
 import flask
 import insta485
+import sqlite3
 from insta485.api.helper import check_authentication
 
 """
@@ -31,7 +32,7 @@ def get_posts():
   size = flask.request.args['size']
   post_lte = flask.request.args['post_lte']
 
-  # NOTE: there is a like 'object' nested in the posts object
+  # NOTE: there is a Like 'object' nested in the Post object
   # it contains lognameLiked, likeid, and url to the post
   # if the user liked the post, then the url is the url to the like
   # endpoint where you can like posts
@@ -43,12 +44,36 @@ def get_posts():
 
 
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/', methods=['GET'])
-def get_post(postid_url_slug):
+def get_post():
     """Return post on postid."""
     check_authentication()
-    # again, postid is an int
-    # need all the as p2, but it's important to note
-    # that the time stored in the db is not humanized
-    # we need to do that on the front end
-    context = {}
+    # connect to database
+    connection = insta485.model.get_db()
+    connection.row_factory = sqlite3.Row
+    # get likes and comments
+    likes, logname_liked = get_likes(post_url_slug, connection)
+    comments = get_all_comments(post_url_slug, connection)
+    logname = flask.session['logname']
+    post = connection.execute(
+        "SELECT P.owner, P.filename as im, P.created, U.filename "
+        "FROM posts P, users U "
+        "WHERE P.postid = ? AND U.username = P.owner",
+        (post_url_slug, )
+    ).fetchall()
+    # if there is no post, abort
+    if not post:
+        return flask.abort(404)
+    # build context and render
+    context = {
+        'logname': logname,
+        'postid': post_url_slug,
+        "owner": post[0][0],
+        "owner_img_url": post[0][3],
+        "img_url": post[0][1],
+        "timestamp": arrow.get(post[0][2]).to('US/Eastern').humanize(),
+        "likes": len(likes),
+        "comments": comments,
+        "logname_liked": logname_liked
+    }
+    return flask.render_template("post.html", **context)
     return flask.jsonify(**context)

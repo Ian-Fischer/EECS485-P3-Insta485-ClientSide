@@ -1,4 +1,4 @@
-"""Helper functions"""
+"""Helper functions."""
 
 """
 FLASK RESPONSE CODES! 
@@ -56,6 +56,32 @@ def new_password_hash(password):
     password_hash = hash_obj.hexdigest()
     password_db_string = "$".join([algorithm, salt, password_hash])
     return password_db_string
+
+def get_all_comments(postid, connection):
+    """Get all comments commented on post with postid."""
+    comments = connection.execute(
+        "SELECT C.owner, C.text, C.commentid "
+        "FROM comments C "
+        "WHERE C.postid = ? ",
+        (postid,)
+    ).fetchall()
+    output = [{'owner': elt['owner'],
+               'text': elt['text'],
+               'commentid': elt['commentid']} for elt in comments]
+    output = sorted(output, key=lambda k: k['commentid'])
+    return output
+
+
+def get_likes(postid, connection):
+    """Get all likes on post with postid."""
+    likes = connection.execute(
+                "SELECT L.owner "
+                "FROM likes L "
+                "WHERE L.postid = ? ",
+                (postid,)).fetchall()
+    likes = [elt['owner'] for elt in likes]
+    logname_liked = flask.session['logname'] in likes
+    return likes, logname_liked
 
 def verify_user(username, password):
     """Takes the given username and password and verifies."""
