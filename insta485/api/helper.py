@@ -16,6 +16,12 @@ import hashlib
 import uuid
 import pathlib
 
+def chunks(array, size):
+    output = []
+    for i in range(0, len(array), size):
+        output.append(array[i:min(i+size, len(array))])
+    return output
+
 def get_file_path(filename):
     """Get uuid file path."""
     stem = uuid.uuid4().hex

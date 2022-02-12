@@ -1,5 +1,6 @@
 """Insta485 Rest API."""
 
+import insta485
 from insta485.api.posts import get_post
 from insta485.api.posts import get_posts
 from insta485.api.likes import make_like

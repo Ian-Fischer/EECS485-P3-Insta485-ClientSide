@@ -56,6 +56,7 @@ def delete_like():
         'WHERE L.likeid = ? ',
         (likeid,)
     ).fetchall()
+    import pdb; pdb.set_trace()
     # check if the like exists
     if len(like) != 1:
         return flask.jsonify(**{'message': 'not found'}), 404

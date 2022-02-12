@@ -9,7 +9,7 @@ for good requests, I think 200 for return content, 204 for good delete, 201 for 
 import sqlite3
 import flask
 import insta485
-from helper import check_authentication
+from insta485.api.helper import check_authentication
 
 @insta485.app.route('/api/v1/comments/', methods=['POST'])
 def make_comment():
@@ -42,7 +42,7 @@ def make_comment():
     return flask.jsonify(**context), 201
 
 
-@insta485.app.route('/api/v1/comments/<commentid>/', method=['DELETE'])
+@insta485.app.route('/api/v1/comments/<commentid>/', methods=['DELETE'])
 def delete_comment():
     """Delete a comment."""
     # NOTE: if the commentid does not exist, return flask.abort(404)
