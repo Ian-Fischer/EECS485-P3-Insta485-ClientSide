@@ -49,4 +49,28 @@ def delete_comment():
     # NOTE: if the comment owner is not the logname, return flask.abort(403)
     check_authentication()
     commentid = flask.request.args['commentid']
-    # check to see if the comment exists
+    # connect to db
+    connection = insta485.model.get_db()
+    connection.row_factory = sqlite3.Row
+    # check ifthe comment exists
+    comment = connection.execute(
+        'SELECT C.owner '
+        'FROM comments C '
+        'WHERE C.commentid = ? ',
+        (commentid,)
+    ).fetchall()
+    if len(comment) != 1:
+        return flask.jsonify(**{'message': 'not found'}), 404
+    # check if they own the comment
+    if comment[0]['owner'] != flask.session.get('logname'):
+        return flask.jsonify(**{'message': 'forbidden'}), 403
+    # they own the comment, now delete
+    connection.execute(
+        'DELETE FROM comments '
+        'WHERE commentid = ? ',
+        (commentid,)
+    )
+    # commit changes
+    connection.commit()
+    # return 204
+    return flask.jsonify('message': 'no content'), 204

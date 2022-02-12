@@ -21,7 +21,6 @@ URLs in this file:
 def get_posts():
   """Return the 10 newests posts"""
   check_authentication()
-  # 1. CHECK AUTHENTIFICATION
   # 2. Get 10 newests posts (should be the 10 highest postid's)
   #    Posts need to be the logged in user or someone he follows
   # note postid is an int!
