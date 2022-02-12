@@ -29,6 +29,7 @@ def make_comment():
     else:
         commentid = last_commentid[0]['last_insert_rowid()'] + 1
     text = flask.request.args['text']
+    # build the response
     context = {
         'commentid': commentid,
         'lognameOwnsThis': True,
@@ -37,8 +38,8 @@ def make_comment():
         'text': text,
         'url': '/api/v1/comments/{cid}/'.format(cid=commentid)
     }
+    # return w/ 201
     return flask.jsonify(**context), 201
-
 
 
 @insta485.app.route('/api/v1/comments/<commentid>/', method=['DELETE'])
@@ -48,3 +49,4 @@ def delete_comment():
     # NOTE: if the comment owner is not the logname, return flask.abort(403)
     check_authentication()
     commentid = flask.request.args['commentid']
+    # check to see if the comment exists
