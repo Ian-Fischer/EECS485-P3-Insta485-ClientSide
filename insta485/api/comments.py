@@ -3,7 +3,7 @@
 """
 FLASK RESPONSE CODES! 
 bad requests should take form of {'message': 'what was wrong', 'code': flaskcode}
-for good requests, I think 200 for return content, 204 for good delete, but check spec
+for good requests, I think 200 for return content, 204 for good delete, 201 for create
 """
 
 import sqlite3
@@ -27,8 +27,18 @@ def make_comment():
     if len(last_commentid) == 0:
         commentid = 1
     else:
-        commentid = last_commentid[0]['last_insert_rowid()']
-    
+        commentid = last_commentid[0]['last_insert_rowid()'] + 1
+    text = flask.request.args['text']
+    context = {
+        'commentid': commentid,
+        'lognameOwnsThis': True,
+        'owner': flask.session.get('logname'),
+        'ownerShowUrl': '/users/{logname}/'.format(logname=flask.session.get('logname')),
+        'text': text,
+        'url': '/api/v1/comments/{cid}/'.format(cid=commentid)
+    }
+    return flask.jsonify(**context), 201
+
 
 
 @insta485.app.route('/api/v1/comments/<commentid>/', method=['DELETE'])
