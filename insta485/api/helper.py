@@ -84,10 +84,10 @@ def get_likes(postid, connection):
                 "SELECT L.owner "
                 "FROM likes L "
                 "WHERE L.postid = ? ",
-                (postid,)).fetchall()
+                (postid,)
+            ).fetchall()
     likes = [elt['owner'] for elt in likes]
-    logname_liked = flask.session['logname'] in likes
-    return likes, logname_liked
+    return likes
 
 def verify_user(username, password):
     """Takes the given username and password and verifies."""

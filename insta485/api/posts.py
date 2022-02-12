@@ -88,7 +88,12 @@ def get_post(postid_url_slug):
   connection = insta485.model.get_db()
   connection.row_factory = sqlite3.Row
   # get likes and comments
-  likes, logname_liked = get_likes(postid_url_slug, connection)
+  likes = get_likes(postid_url_slug, connection)
+  likes = {
+    'numLikes': len(likes),
+    'lognameLikesThis': flask.session.get('logname') in likes,
+    'url': f'/api/v1/likes/{postid_url_slug}/'
+  }
   comments = get_all_comments(postid_url_slug, connection)
   logname = flask.session['logname']
   post = connection.execute(
@@ -102,15 +107,16 @@ def get_post(postid_url_slug):
       return flask.jsonify(**{'message': 'Not Found'}), 404
   # build context and render
   context = {
-      'logname': logname,
-      'postid': postid_url_slug,
-      "owner": post[0][0],
-      "owner_img_url": post[0][3],
-      "img_url": post[0][1],
-      "timestamp": post[0][2],
-      "likes": len(likes),
-      "comments": comments,
-      "logname_liked": logname_liked
+    'comments': comments,
+    'created': post[0]['created'],
+    'imgUrl': post[0]['im'],
+    'likes': likes,
+    'owner': flask.session.get('logname'),
+    'ownerImgUrl': post[0]['filename'],
+    'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
+    'postShowUrl': f'/posts/{postid_url_slug}/',
+    'postid': postid_url_slug,
+    'url': f'/api/v1/posts/{postid_url_slug}/'
   }
   # return context, and good response code
   return flask.jsonify(**context), 200

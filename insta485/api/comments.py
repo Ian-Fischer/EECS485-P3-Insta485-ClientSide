@@ -56,6 +56,7 @@ def delete_comment(commentid):
         'WHERE C.commentid = ? ',
         (commentid,)
     ).fetchall()
+    
     if len(comment) != 1:
         return flask.jsonify(**{'message': 'not found'}), 404
     # check if they own the comment

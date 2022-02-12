@@ -18,12 +18,14 @@ def make_like():
     check_authentication()
     postid = flask.request.args.get('postid')
     if not postid:
-        # FIXME: i don't know what the correct response code is
-        # FIXME: or what to do if an arg is not specified
         return flask.jsonify(**{'message': 'not found'}), 404
     # db connection
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
+    # check if logname already liked
+    liked = connection.execute(
+        ''
+    )
     # insert like into table
     connection.execute (
         'INSERT into likes(owner, postid) '
@@ -36,7 +38,7 @@ def make_like():
         'likeid': postid,
         'url': f'/api/v1/likes/{postid}/'
     }
-    return flask.jsonify(**context), 200
+    return flask.jsonify(**context), 201
 
 
 @insta485.app.route('/api/v1/likes/<likeid>/', methods=['DELETE'])
@@ -54,7 +56,6 @@ def delete_like(likeid):
         'WHERE L.likeid = ? ',
         (likeid,)
     ).fetchall()
-    import pdb; pdb.set_trace()
     # check if the like exists
     if len(like) != 1:
         return flask.jsonify(**{'message': 'not found'}), 404
