@@ -31,14 +31,12 @@ def get_posts():
   page = flask.request.args['page']
   size = flask.request.args['size']
   post_lte = flask.request.args['post_lte']
-
   # NOTE: there is a Like 'object' nested in the Post object
   # it contains lognameLiked, likeid, and url to the post
   # if the user liked the post, then the url is the url to the like
   # endpoint where you can like posts
   # if the user has not liked the post, the the url is null (I think
   # in python that will be None, but we should double check)
-
   context = {}
   return flask.jsonify(**context)
 
