@@ -43,12 +43,9 @@ def make_comment():
 
 
 @insta485.app.route('/api/v1/comments/<commentid>/', methods=['DELETE'])
-def delete_comment():
+def delete_comment(commentid):
     """Delete a comment."""
-    # NOTE: if the commentid does not exist, return flask.abort(404)
-    # NOTE: if the comment owner is not the logname, return flask.abort(403)
     check_authentication()
-    commentid = flask.request.args['commentid']
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row

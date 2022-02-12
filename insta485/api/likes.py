@@ -39,13 +39,11 @@ def make_like():
     return flask.jsonify(**context), 200
 
 
-@insta485.app.route('/api/v1/likes/', methods=['DELETE'])
-def delete_like():
+@insta485.app.route('/api/v1/likes/<likeid>/', methods=['DELETE'])
+def delete_like(likeid):
     """Delete a like on specified post."""
     check_authentication()
-    likeid = flask.request.args.get('postid')
     if not likeid:
-        # FIXME: what to do if an arg is not specified
         return flask.jsonify(**{'message': 'not found'}), 404
     # connect to db
     connection = insta485.model.get_db()
