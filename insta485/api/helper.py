@@ -111,7 +111,6 @@ def check_authentication():
     # get flask session stuff
     session_username = flask.request.form.get('username')
     session_password = flask.request.form.get('password')
-
     if session_username and session_password:
         if verify_user(session_username, session_password):
             flask.session['logname'] = session_username

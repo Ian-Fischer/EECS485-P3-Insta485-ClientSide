@@ -73,4 +73,4 @@ def delete_comment():
     # commit changes
     connection.commit()
     # return 204
-    return flask.jsonify('message': 'no content'), 204
+    return flask.jsonify(**{'message': 'no content'}), 204

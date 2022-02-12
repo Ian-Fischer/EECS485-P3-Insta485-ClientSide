@@ -1,9 +1,0 @@
-env/
-insta485.egg-info
-node-modules
-__pycache__
-bundle.js
-tmp
-cookies.txt
-session.json
-var
