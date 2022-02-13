@@ -13,6 +13,7 @@ URLs include:
 import sqlite3
 import flask
 import insta485
+from insta485.api.helper import check_authentication
 from insta485.views.helper import handle_account_create, handle_account_delete
 from insta485.views.helper import handle_account_edit, handle_account_login
 from insta485.views.helper import handle_account_password
@@ -110,7 +111,8 @@ def handle_account():
         target = flask.url_for('show_index')
     # LOGIN:
     if operation == 'login':
-        handle_account_login(target)
+        if not check_authentication():
+            return flask.jsonify(**{'message': 'forbidden'}), 403
     # CREATE
     elif operation == 'create':
         handle_account_create(target)

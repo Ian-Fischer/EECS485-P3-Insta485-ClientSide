@@ -21,7 +21,8 @@ URLs in this file:
 @insta485.app.route('/api/v1/posts/', methods=['GET'])
 def get_posts():
   """Return the 10 newests posts"""
-  check_authentication()
+  if not check_authentication():
+    return flask.jsonify(**{'message': 'Forbidden'}), 403
   # connect to the db
   connection = insta485.model.get_db()
   connection.row_factory = sqlite3.Row
@@ -68,7 +69,6 @@ def get_posts():
       "WHERE D.owner = ? OR (F.username1 = ? AND D.owner = F.username2))",
     (flask.session.get('logname'), flask.session.get('logname'), postid_lte, )
   ).fetchall()
-  import pdb; pdb.set_trace()
   for elt in user_posts:
     if elt < postid_lte:
       del elt
@@ -102,7 +102,8 @@ def get_posts():
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/', methods=['GET'])
 def get_post(postid_url_slug):
   """Return post on postid."""
-  check_authentication()
+  if not check_authentication():
+    return flask.jsonify(**{'message': 'Forbidden'}), 403
   # connect to database
   connection = insta485.model.get_db()
   connection.row_factory = sqlite3.Row

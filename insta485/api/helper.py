@@ -122,6 +122,9 @@ def verify_user(username, password):
 
 def check_authentication():
     """Function to handle the authentication of the user."""
+    # check if already logged in
+    if 'logname' in flask.session:
+        return True
     # get flask session stuff
     if flask.request.form:
         session_username = flask.request.form['username']
@@ -129,7 +132,7 @@ def check_authentication():
         if verify_user(session_username, session_password):
             flask.session['logname'] = session_username
             return True
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return False
 
     # get http basic authentification stuff
     elif flask.request.authorization:
@@ -138,7 +141,7 @@ def check_authentication():
         if verify_user(http_username, http_password):
             flask.session['logname'] = http_username
             return True
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return False
 
     # if neither http or flask session used 
-    return flask.jsonify(**{'message': 'Forbidden'}), 403
+    return False

@@ -14,7 +14,8 @@ from insta485.api.helper import check_authentication
 @insta485.app.route('/api/v1/comments/', methods=['POST'])
 def make_comment():
     """Make a comment on the specified post."""
-    check_authentication()
+    if not check_authentication():
+        return flask.jsonify(**{'message': 'Forbidden'}), 403
     postid = flask.request.args.get('postid')
     comment = flask.request.json.get('text')
     # connect to db
@@ -52,7 +53,8 @@ def make_comment():
 @insta485.app.route('/api/v1/comments/<commentid>/', methods=['DELETE'])
 def delete_comment(commentid):
     """Delete a comment."""
-    check_authentication()
+    if not check_authentication():
+        return flask.jsonify(**{'message': 'Forbidden'}), 403
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row

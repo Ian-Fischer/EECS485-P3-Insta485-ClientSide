@@ -15,7 +15,8 @@ def make_like():
     """Make a like at the specified post."""
     # postid is an arg ?postid=<postid>
     # 1. check authentication
-    check_authentication()
+    if not check_authentication():
+        return flask.jsonify(**{'message': 'Forbidden'}), 403
     postid = flask.request.args.get('postid')
     if not postid:
         return flask.jsonify(**{'message': 'not found'}), 404
@@ -53,7 +54,9 @@ def make_like():
 @insta485.app.route('/api/v1/likes/<likeid>/', methods=['DELETE'])
 def delete_like(likeid):
     """Delete a like on specified post."""
-    check_authentication()
+    if not check_authentication():
+        return flask.jsonify(**{'message': 'Forbidden'}), 403
+    # FIXME: should this be here?
     if not likeid:
         return flask.jsonify(**{'message': 'not found'}), 404
     # connect to db
