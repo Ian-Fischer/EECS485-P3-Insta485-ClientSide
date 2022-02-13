@@ -1,0 +1,216 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.10.1, pytest-7.0.0, pluggy-1.0.0 -- /Users/johnkyle/Desktop/Michigan/EECS/485/p3-insta485-clientside/env/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/johnkyle/Desktop/Michigan/EECS/485/p3-insta485-clientside
+collecting ... collected 15 items
+
+tests/test_rest_api_likes_and_comments.py::test_likes_delete PASSED      [  6%]
+tests/test_rest_api_likes_and_comments.py::test_likes_post PASSED        [ 13%]
+tests/test_rest_api_likes_and_comments.py::test_like_exists PASSED       [ 20%]
+tests/test_rest_api_likes_and_comments.py::test_comments_post PASSED     [ 26%]
+tests/test_rest_api_likes_and_comments.py::test_comments_delete PASSED   [ 33%]
+tests/test_rest_api_posts.py::test_posts_list PASSED                     [ 40%]
+tests/test_rest_api_posts.py::test_posts_detail PASSED                   [ 46%]
+tests/test_rest_api_posts.py::test_posts_autoincrement PASSED            [ 53%]
+tests/test_rest_api_posts.py::test_posts_pagination_simple PASSED        [ 60%]
+tests/test_rest_api_posts.py::test_posts_pagination_page_size PASSED     [ 66%]
+tests/test_rest_api_posts.py::test_posts_pagination_upload_between_requests FAILED [ 73%]
+tests/test_rest_api_posts.py::test_posts_pagination_errors PASSED        [ 80%]
+tests/test_rest_api_simple.py::test_resources PASSED                     [ 86%]
+tests/test_rest_api_simple.py::test_login_session FAILED                 [ 93%]
+tests/test_rest_api_simple.py::test_http_basic_auth FAILED               [100%]
+
+=================================== FAILURES ===================================
+________________ test_posts_pagination_upload_between_requests _________________
+
+client = <FlaskClient <Flask 'insta485'>>
+
+    def test_posts_pagination_upload_between_requests(client):
+        """Verify correct results when another user uploads in between requests.
+    
+        1. Get first page of posts
+        2. Create a new post
+        3. Get second page of posts.  New posts *should not* be present.
+    
+        Note: 'client' is a fixture fuction that provides a Flask test server
+        interface with a clean database.  It is implemented in conftest.py and
+        reused by many tests.  Docs: https://docs.pytest.org/en/latest/fixture.html
+        """
+        # Delete all likes, comments and posts.  The default database contains
+        # postids {1,2,3,4}.  We're going to delete those and add new posts later
+        # in this test.  The new posts will start with postid=5.
+        connection = sqlite3.connect("var/insta485.sqlite3")
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute("DELETE FROM likes")
+        connection.execute("DELETE FROM comments")
+        connection.execute("DELETE FROM posts")
+    
+        # Create exactly 10 posts
+        for _ in range(10):
+            connection.execute(
+                "INSERT INTO posts(owner, filename) "
+                "VALUES('awdeorio', 'fox.jpg') ",
+            )
+        connection.commit()
+        connection.close()
+    
+        credentials = b64encode(b"awdeorio:password").decode('utf-8')
+    
+        # GET request with defaults return 10 most recent items
+        response = client.get(
+            "/api/v1/posts/",
+            headers={"Authorization": f"Basic {credentials}"}
+        )
+        assert response.status_code == 200
+        response_json = response.get_json()
+    
+        assert response_json == {
+            "next": "/api/v1/posts/?size=10&page=1&postid_lte=14",
+            "results": [
+                {
+                    "postid": 14,
+                    "url": "/api/v1/posts/14/"
+                },
+                {
+                    "postid": 13,
+                    "url": "/api/v1/posts/13/"
+                },
+                {
+                    "postid": 12,
+                    "url": "/api/v1/posts/12/"
+                },
+                {
+                    "postid": 11,
+                    "url": "/api/v1/posts/11/"
+                },
+                {
+                    "postid": 10,
+                    "url": "/api/v1/posts/10/"
+                },
+                {
+                    "postid": 9,
+                    "url": "/api/v1/posts/9/"
+                },
+                {
+                    "postid": 8,
+                    "url": "/api/v1/posts/8/"
+                },
+                {
+                    "postid": 7,
+                    "url": "/api/v1/posts/7/"
+                },
+                {
+                    "postid": 6,
+                    "url": "/api/v1/posts/6/"
+                },
+                {
+                    "postid": 5,
+                    "url": "/api/v1/posts/5/"
+                }
+            ],
+            "url": "/api/v1/posts/"
+        }
+    
+        # Create one new post
+        connection = sqlite3.connect("var/insta485.sqlite3")
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute(
+            "INSERT INTO posts(owner, filename) "
+            "VALUES('awdeorio', 'fox.jpg') ",
+        )
+        connection.commit()
+        connection.close()
+    
+        # GET request to second page returns no items, it should ignore the new
+        # post we added.
+        response = client.get(
+            "/api/v1/posts/?size=10&page=1&postid_lte=14",
+            headers={"Authorization": f"Basic {credentials}"}
+        )
+        assert response.status_code == 200
+>       assert response.get_json() == {
+            "next": "",
+            "results": [],
+            "url": "/api/v1/posts/?size=10&page=1&postid_lte=14"
+        }
+E       AssertionError: assert {'next': '',\n 'results': [{'postid': 5, 'url': '/api/v1/posts/5/'}],\n 'url': '/api/v1/posts/?size=10&page=1&postid_lte=14'} == {'next': '',\n 'results': [],\n 'url': '/api/v1/posts/?size=10&page=1&postid_lte=14'}
+E         Common items:
+E         {'next': '', 'url': '/api/v1/posts/?size=10&page=1&postid_lte=14'}
+E         Differing items:
+E         {'results': [{'postid': 5, 'url': '/api/v1/posts/5/'}]} != {'results': []}
+E         Full diff:
+E           {
+E            'next': '',
+E         -  'results': [],
+E         +  'results': [{'postid': 5, 'url': '/api/v1/posts/5/'}],
+E            'url': '/api/v1/posts/?size=10&page=1&postid_lte=14',
+E           }
+
+tests/test_rest_api_posts.py:459: AssertionError
+---------------------------- Captured stderr setup -----------------------------
++ '[' 1 -ne 1 ']'
++ case $1 in
++ rm -rf var/insta485.sqlite3 var/uploads
++ mkdir -p var/uploads
++ sqlite3 var/insta485.sqlite3
++ sqlite3 var/insta485.sqlite3
++ cp sql/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg sql/uploads/2ec7cf8ae158b3b1f40065abfb33e81143707842.jpg sql/uploads/505083b8b56c97429a728b68f31b0b2a089e5113.jpg sql/uploads/5ecde7677b83304132cb2871516ea50032ff7a4f.jpg sql/uploads/73ab33bd357c3fd42292487b825880958c595655.jpg sql/uploads/9887e06812ef434d291e4936417d125cd594b38a.jpg sql/uploads/ad7790405c539894d25ab8dcf0b79eed3341e109.jpg sql/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg var/uploads/
+______________________________ test_login_session ______________________________
+
+client = <FlaskClient <Flask 'insta485'>>
+
+    def test_login_session(client):
+        """Verify GET request to posts route with login session.
+    
+        Note: 'client' is a fixture fuction that provides a Flask test server
+        interface with a clean database.  It is implemented in conftest.py and
+        reused by many tests.  Docs: https://docs.pytest.org/en/latest/fixture.html
+        """
+        # Access denied without credentials
+        response = client.get("/api/v1/posts/")
+>       assert response.status_code == 403
+E       assert 200 == 403
+E         +200
+E         -403
+
+tests/test_rest_api_simple.py:32: AssertionError
+---------------------------- Captured stderr setup -----------------------------
++ '[' 1 -ne 1 ']'
++ case $1 in
++ rm -rf var/insta485.sqlite3 var/uploads
++ mkdir -p var/uploads
++ sqlite3 var/insta485.sqlite3
++ sqlite3 var/insta485.sqlite3
++ cp sql/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg sql/uploads/2ec7cf8ae158b3b1f40065abfb33e81143707842.jpg sql/uploads/505083b8b56c97429a728b68f31b0b2a089e5113.jpg sql/uploads/5ecde7677b83304132cb2871516ea50032ff7a4f.jpg sql/uploads/73ab33bd357c3fd42292487b825880958c595655.jpg sql/uploads/9887e06812ef434d291e4936417d125cd594b38a.jpg sql/uploads/ad7790405c539894d25ab8dcf0b79eed3341e109.jpg sql/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg var/uploads/
+_____________________________ test_http_basic_auth _____________________________
+
+client = <FlaskClient <Flask 'insta485'>>
+
+    def test_http_basic_auth(client):
+        """Verify GET request to posts route with HTTP Basic Auth.
+    
+        Note: 'client' is a fixture fuction that provides a Flask test server
+        interface with a clean database.  It is implemented in conftest.py and
+        reused by many tests.  Docs: https://docs.pytest.org/en/latest/fixture.html
+        """
+        # Access denied without credentials
+        response = client.get("/api/v1/posts/")
+>       assert response.status_code == 403
+E       assert 200 == 403
+E         +200
+E         -403
+
+tests/test_rest_api_simple.py:58: AssertionError
+---------------------------- Captured stderr setup -----------------------------
++ '[' 1 -ne 1 ']'
++ case $1 in
++ rm -rf var/insta485.sqlite3 var/uploads
++ mkdir -p var/uploads
++ sqlite3 var/insta485.sqlite3
++ sqlite3 var/insta485.sqlite3
++ cp sql/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg sql/uploads/2ec7cf8ae158b3b1f40065abfb33e81143707842.jpg sql/uploads/505083b8b56c97429a728b68f31b0b2a089e5113.jpg sql/uploads/5ecde7677b83304132cb2871516ea50032ff7a4f.jpg sql/uploads/73ab33bd357c3fd42292487b825880958c595655.jpg sql/uploads/9887e06812ef434d291e4936417d125cd594b38a.jpg sql/uploads/ad7790405c539894d25ab8dcf0b79eed3341e109.jpg sql/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg var/uploads/
+=========================== short test summary info ============================
+FAILED tests/test_rest_api_posts.py::test_posts_pagination_upload_between_requests
+FAILED tests/test_rest_api_simple.py::test_login_session - assert 200 == 403
+FAILED tests/test_rest_api_simple.py::test_http_basic_auth - assert 200 == 403
+========================= 3 failed, 12 passed in 0.88s =========================

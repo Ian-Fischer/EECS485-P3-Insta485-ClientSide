@@ -16,8 +16,7 @@ def make_comment():
     """Make a comment on the specified post."""
     check_authentication()
     postid = flask.request.args.get('postid')
-    # TODO: how do I get the comment!
-    comment = flask.request.form.get('text')
+    comment = flask.request.json.get('text')
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
@@ -27,16 +26,16 @@ def make_comment():
         'VALUES (?,?,?) ',
         (flask.session.get('logname'), postid, comment,)
     )
+    connection.commit()
     # get last commentid
     last_commentid = connection.execute(
         'SELECT last_insert_rowid() '
-        'FROM comments '
     ).fetchall()
     if len(last_commentid) == 0:
         commentid = 1
     else:
-        commentid = last_commentid[0]['last_insert_rowid()'] + 1
-    text = flask.request.args['text']
+        commentid = last_commentid[0]['last_insert_rowid()']
+    text = flask.request.json.get('text')
     # build the response
     context = {
         'commentid': commentid,

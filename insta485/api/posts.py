@@ -34,20 +34,11 @@ def get_posts():
   ).fetchall()
   following = [elt['username2'] for elt in following]
   following.append(flask.session.get('logname'))
-  num_posts = connection.execute(
-    "SELECT P.postid "
-    "FROM posts P "
-    "WHERE P.postid IN ( "
-      "SELECT D.postid "
-      "FROM posts D, following F "
-      "WHERE P.owner = ? OR (F.username1 = ? AND P.owner = F.username2))",
-    (flask.session.get('logname'), flask.session.get('logname'),)
-  ).fetchall()
-  num_posts = len(num_posts)
   # get args
-  page = flask.request.args.get('page', default=1, type=int)
-  size = flask.request.args.get('size', default=num_posts, type=int)
-  post_lte = flask.request.args.get('post_lte', default=num_posts, type=int)
+  page = flask.request.args.get('page', default=0, type=int)
+  size = flask.request.args.get('size', default=10, type=int)
+  if page < 0 or size < 0:
+    return flask.jsonify(**{'message': 'bad request', 'status_code': 400}), 400
   posts = []
   user_posts = connection.execute(
       "SELECT P.postid "
@@ -55,29 +46,55 @@ def get_posts():
       "WHERE P.postid IN ( "
       "SELECT D.postid "
       "FROM posts D, following F "
-      "WHERE P.owner = ? OR (F.username1 = ? AND P.owner = F.username2) "
+      "WHERE D.owner = ? OR (F.username1 = ? AND D.owner = F.username2) "
       "ORDER BY D.postid DESC) "
       "ORDER BY P.postid DESC "
-      "LIMIT ? "
-      "OFFSET ? ",
-      (flask.session.get('logname'), flask.session.get('logname'), size, (page - 1)*size,)
+      "LIMIT ? OFFSET ? ",
+      (flask.session.get('logname'), flask.session.get('logname'), size, page*size,)
   ).fetchall()
   user_posts = [elt['postid'] for elt in user_posts]
-  num_pages = ceil(num_posts/size)
-  # if i am on the last page, there is no next
-  if page == num_pages:
-    next = ""
-    url = f'/api/v1/posts/'
+  #if postid_lte is not specified on the current page, The ID of the most recent post on the current page
+  if len(user_posts) == 0:
+    postid_lte_default = 0
   else:
-    next = f'/api/v1/posts/?size={size}&page={page + 1}&postid_lte={post_lte}'
+    postid_lte_default = user_posts[0]
+  postid_lte = flask.request.args.get('postid_lte', default=postid_lte_default, type=int)
+  num_posts = connection.execute(
+    "SELECT P.postid "
+    "FROM posts P "
+    "WHERE P.postid < ? AND P.postid IN ( "
+      "SELECT D.postid "
+      "FROM posts D, following F "
+      "WHERE D.owner = ? OR (F.username1 = ? AND D.owner = F.username2))",
+    (flask.session.get('logname'), flask.session.get('logname'), postid_lte, )
+  ).fetchall()
+  import pdb; pdb.set_trace()
+  for elt in user_posts:
+    if elt < postid_lte:
+      del elt
+  num_posts = len(num_posts)
+  if size == 0:
+    num_pages = 1
+  else:
+    num_pages = ceil(num_posts/size) - 1
+  # if i am on the last page, there is no next
+  # import pdb; pdb.set_trace()
+  if len(user_posts) < size:
+    next_url = ""
+  else:
+    next_url = f'/api/v1/posts/?size={size}&page={page + 1}&postid_lte={postid_lte}'
   results = []
   for post in user_posts:
     results.append({'postid': post,
                     'url': f'/api/v1/posts/{post}/'})
+  if flask.request.full_path[-1] == '?':
+    url = flask.request.full_path[:-1]
+  else:
+    url = flask.request.full_path
   context = {
-    'next': next,
+    'next': next_url,
     'results': results,
-    'url': f'/api/v1/posts/?size={size}&page={page}&postid_lte={post_lte}'
+    'url': url
   }
   return flask.jsonify(**context), 200
 
@@ -91,13 +108,16 @@ def get_post(postid_url_slug):
   connection.row_factory = sqlite3.Row
   # get likes and comments
   likes, likeid = get_likes(postid_url_slug, connection)
-  if flask.session.get('logname') in likes:
+  lognameLikesThis = False
+  for dictionary in likes:
+    if dictionary['owner'] == flask.session.get('logname'):
+      lognameLikesThis = True
+  url = None
+  if lognameLikesThis:
     url = f'/api/v1/likes/{likeid}/'
-  else:
-    url = None
   likes = {
     'numLikes': len(likes),
-    'lognameLikesThis': flask.session.get('logname') in likes,
+    'lognameLikesThis': lognameLikesThis,
     'url': url
   }
   comments = get_all_comments(postid_url_slug, connection)

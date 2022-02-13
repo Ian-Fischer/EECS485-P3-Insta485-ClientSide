@@ -26,15 +26,15 @@ def make_like():
     liked = connection.execute(
         'SELECT L.likeid '
         'FROM likes L '
-        'WHERE L.owner = ? ',
-        (flask.session.get('logname'),)
+        'WHERE L.owner = ? AND L.postid = ? ',
+        (flask.session.get('logname'), postid,)
     ).fetchall()
     if len(liked) == 1:
         output = {
             'likeid': liked[0]['likeid'],
             'url': f'/api/v1/likes/{liked[0]["likeid"]}/'
         }
-        return flask.jsonify(**output), 201
+        return flask.jsonify(**output), 200
     # insert like into table
     connection.execute (
         'INSERT into likes(owner, postid) '

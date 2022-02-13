@@ -74,7 +74,7 @@ def get_all_comments(postid, connection):
     output = [{'owner': elt['owner'],
                'text': elt['text'],
                'commentid': elt['commentid'],
-               'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
+               'ownerShowUrl': f'/users/{elt["owner"]}/',
                'lognameOwnsThis': elt['owner'] == flask.session.get('logname'),
                'url': f'/api/v1/comments/{elt["commentid"]}/'}
                for elt in comments]
@@ -95,7 +95,7 @@ def get_likes(postid, connection):
     for dictionary in likes:
         if dictionary.get('owner') == flask.session.get('logname'):
             likeid = dictionary.get('likeid')
-    return likes
+    return likes, likeid
 
 def verify_user(username, password):
     """Takes the given username and password and verifies."""
@@ -123,18 +123,18 @@ def verify_user(username, password):
 def check_authentication():
     """Function to handle the authentication of the user."""
     # get flask session stuff
-    session_username = flask.request.form.get('username')
-    session_password = flask.request.form.get('password')
-    if session_username and session_password:
+    if flask.request.form:
+        session_username = flask.request.form['username']
+        session_password = flask.request.form['password']
         if verify_user(session_username, session_password):
             flask.session['logname'] = session_username
             return True
         return flask.jsonify(**{'message': 'Forbidden'}), 403
 
     # get http basic authentification stuff
-    http_username = flask.request.authorization['username']
-    http_password = flask.request.authorization['password']
-    if http_username and http_password:
+    elif flask.request.authorization:
+        http_username = flask.request.authorization['username']
+        http_password = flask.request.authorization['password']
         if verify_user(http_username, http_password):
             flask.session['logname'] = http_username
             return True
