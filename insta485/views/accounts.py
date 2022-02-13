@@ -111,8 +111,7 @@ def handle_account():
         target = flask.url_for('show_index')
     # LOGIN:
     if operation == 'login':
-        if not check_authentication():
-            return flask.jsonify(**{'message': 'forbidden'}), 403
+        handle_account_login(target)
     # CREATE
     elif operation == 'create':
         handle_account_create(target)
