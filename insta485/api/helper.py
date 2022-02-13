@@ -73,7 +73,11 @@ def get_all_comments(postid, connection):
     ).fetchall()
     output = [{'owner': elt['owner'],
                'text': elt['text'],
-               'commentid': elt['commentid']} for elt in comments]
+               'commentid': elt['commentid'],
+               'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
+               'lognameOwnsThis': elt['owner'] == flask.session.get('logname'),
+               'url': f'/api/v1/comments/{elt["commentid"]}/'}
+               for elt in comments]
     output = sorted(output, key=lambda k: k['commentid'])
     return output
 
@@ -81,12 +85,16 @@ def get_all_comments(postid, connection):
 def get_likes(postid, connection):
     """Get all likes on post with postid."""
     likes = connection.execute(
-                "SELECT L.owner "
+                "SELECT L.owner, L.likeid "
                 "FROM likes L "
                 "WHERE L.postid = ? ",
                 (postid,)
             ).fetchall()
-    likes = [elt['owner'] for elt in likes]
+    likes = [{'owner': elt['owner'], 'likeid': elt['likeid']} for elt in likes]
+    likeid = None
+    for dictionary in likes:
+        if dictionary.get('owner') == flask.session.get('logname'):
+            likeid = dictionary.get('likeid')
     return likes
 
 def verify_user(username, password):
@@ -124,8 +132,8 @@ def check_authentication():
         return flask.jsonify(**{'message': 'Forbidden'}), 403
 
     # get http basic authentification stuff
-    http_username = flask.request.authorization.get('username')
-    http_password = flask.request.authorization.get('password')
+    http_username = flask.request.authorization['username']
+    http_password = flask.request.authorization['password']
     if http_username and http_password:
         if verify_user(http_username, http_password):
             flask.session['logname'] = http_username

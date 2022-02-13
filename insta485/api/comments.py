@@ -15,10 +15,18 @@ from insta485.api.helper import check_authentication
 def make_comment():
     """Make a comment on the specified post."""
     check_authentication()
-    postid = flask.request.args['postid']
+    postid = flask.request.args.get('postid')
+    # TODO: how do I get the comment!
+    comment = flask.request.form.get('text')
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
+    # put the comment in
+    connection.execute(
+        'INSERT INTO comments(owner, postid, text) '
+        'VALUES (?,?,?) ',
+        (flask.session.get('logname'), postid, comment,)
+    )
     # get last commentid
     last_commentid = connection.execute(
         'SELECT last_insert_rowid() '
@@ -56,7 +64,7 @@ def delete_comment(commentid):
         'WHERE C.commentid = ? ',
         (commentid,)
     ).fetchall()
-    
+
     if len(comment) != 1:
         return flask.jsonify(**{'message': 'not found'}), 404
     # check if they own the comment

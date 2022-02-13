@@ -24,8 +24,17 @@ def make_like():
     connection.row_factory = sqlite3.Row
     # check if logname already liked
     liked = connection.execute(
-        ''
-    )
+        'SELECT L.likeid '
+        'FROM likes L '
+        'WHERE L.owner = ? ',
+        (flask.session.get('logname'),)
+    ).fetchall()
+    if len(liked) == 1:
+        output = {
+            'likeid': liked[0]['likeid'],
+            'url': f'/api/v1/likes/{liked[0]["likeid"]}/'
+        }
+        return flask.jsonify(**output), 201
     # insert like into table
     connection.execute (
         'INSERT into likes(owner, postid) '

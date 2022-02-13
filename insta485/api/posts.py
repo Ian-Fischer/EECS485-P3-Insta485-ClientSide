@@ -34,10 +34,20 @@ def get_posts():
   ).fetchall()
   following = [elt['username2'] for elt in following]
   following.append(flask.session.get('logname'))
+  num_posts = connection.execute(
+    "SELECT P.postid "
+    "FROM posts P "
+    "WHERE P.postid IN ( "
+      "SELECT D.postid "
+      "FROM posts D, following F "
+      "WHERE P.owner = ? OR (F.username1 = ? AND P.owner = F.username2))",
+    (flask.session.get('logname'), flask.session.get('logname'),)
+  ).fetchall()
+  num_posts = len(num_posts)
   # get args
   page = flask.request.args.get('page', default=1, type=int)
-  size = flask.request.args.get('size', default=1, type=int)
-  post_lte = flask.request.args.get('post_lte', default=10, type=int)
+  size = flask.request.args.get('size', default=num_posts, type=int)
+  post_lte = flask.request.args.get('post_lte', default=num_posts, type=int)
   posts = []
   user_posts = connection.execute(
       "SELECT P.postid "
@@ -53,19 +63,11 @@ def get_posts():
       (flask.session.get('logname'), flask.session.get('logname'), size, (page - 1)*size,)
   ).fetchall()
   user_posts = [elt['postid'] for elt in user_posts]
-  num_posts = connection.execute(
-    "SELECT P.postid "
-    "FROM posts P "
-    "WHERE P.postid IN ( "
-      "SELECT D.postid "
-      "FROM posts D, following F "
-      "WHERE P.owner = ? OR (F.username1 = ? AND P.owner = F.username2))",
-    (flask.session.get('logname'), flask.session.get('logname'),)
-  ).fetchall()
-  num_posts = len(num_posts)
   num_pages = ceil(num_posts/size)
+  # if i am on the last page, there is no next
   if page == num_pages:
     next = ""
+    url = f'/api/v1/posts/'
   else:
     next = f'/api/v1/posts/?size={size}&page={page + 1}&postid_lte={post_lte}'
   results = []
@@ -88,11 +90,15 @@ def get_post(postid_url_slug):
   connection = insta485.model.get_db()
   connection.row_factory = sqlite3.Row
   # get likes and comments
-  likes = get_likes(postid_url_slug, connection)
+  likes, likeid = get_likes(postid_url_slug, connection)
+  if flask.session.get('logname') in likes:
+    url = f'/api/v1/likes/{likeid}/'
+  else:
+    url = None
   likes = {
     'numLikes': len(likes),
     'lognameLikesThis': flask.session.get('logname') in likes,
-    'url': f'/api/v1/likes/{postid_url_slug}/'
+    'url': url
   }
   comments = get_all_comments(postid_url_slug, connection)
   logname = flask.session['logname']
@@ -109,10 +115,10 @@ def get_post(postid_url_slug):
   context = {
     'comments': comments,
     'created': post[0]['created'],
-    'imgUrl': post[0]['im'],
+    'imgUrl': f'/uploads/{post[0]["im"]}',
     'likes': likes,
     'owner': flask.session.get('logname'),
-    'ownerImgUrl': post[0]['filename'],
+    'ownerImgUrl': f'/uploads/{post[0]["filename"]}',
     'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
     'postShowUrl': f'/posts/{postid_url_slug}/',
     'postid': postid_url_slug,
