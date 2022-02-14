@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { string } from 'prop-types';
 
 class Like extends React.Component {
     
@@ -19,8 +18,8 @@ class Like extends React.Component {
 
 }
 
-Like.PropTypes {
-
+Like.PropTypes = {
+    url = PropTypes.string.isRequired,
 };
 
 export default Like;
