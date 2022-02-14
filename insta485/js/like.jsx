@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 function Likes(props) {
     // the number of likes
     // logname liked it
+    // TODO: button functionality stuff
     return(
         <div>
             {props.numLikes != 1 && <p>{props.numLikes} likes</p>}

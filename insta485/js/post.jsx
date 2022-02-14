@@ -14,7 +14,8 @@ class Post extends React.Component {
       profileImgURL: '', 
       numLikes = 0, 
       lognameLiked = false, 
-      postid: 0
+      postid: 0,
+      timestamp = 0
     };
     // ^^ these will be changed once we get information for RestAPI
   }
@@ -50,7 +51,7 @@ class Post extends React.Component {
         <ul>
           <li><a href={"/users/"+owner+"/"}><img src={"/uploads/"+profileImgURL+"/"} class="profilepicture" alt="Profile Picture"/></a></li>
           <li><a href={"/users/"+owner+"/"} class="username"><b>{owner}</b></a></li>
-          <li><a href={"/posts/"+postid+"/"}  class="time">{{ timestamp }}</a></li>
+          <li><a href={"/posts/"+postid+"/"}  class="time">{timestamp}</a></li>
         </ul>
         <img src={"/uploads/"+imgUrl+"/"} alt="Post" style="width:400px; height:400px; position: relative; margin-right: auto; margin-left: auto;"/>
         <Like numLikes={numLikes} lognameLiked={lognameLiked}/>
