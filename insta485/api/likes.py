@@ -16,10 +16,10 @@ def make_like():
     # postid is an arg ?postid=<postid>
     # 1. check authentication
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     postid = flask.request.args.get('postid')
     if not postid:
-        return flask.jsonify(**{'message': 'not found'}), 404
+        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     # db connection
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
@@ -55,10 +55,10 @@ def make_like():
 def delete_like(likeid):
     """Delete a like on specified post."""
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     # FIXME: should this be here?
     if not likeid:
-        return flask.jsonify(**{'message': 'not found'}), 404
+        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     # connect to db
     connection = insta485.model.get_db()
     # get the like they are requesting
@@ -70,10 +70,10 @@ def delete_like(likeid):
     ).fetchall()
     # check if the like exists
     if len(like) != 1:
-        return flask.jsonify(**{'message': 'not found'}), 404
+        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     # check if they own the like
     if flask.session.get('logname') != like[0]['owner']:
-        return flask.jsonify(**{'message': 'you do not own this!'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     # if it exists and they own it, delete it
     connection.execute(
         'DELETE FROM likes '
@@ -82,4 +82,4 @@ def delete_like(likeid):
     )
     # commit changes
     connection.commit()
-    return flask.jsonify(**{'message': 'NO CONTENT'}), 204
+    return flask.jsonify(**{'message': 'No Content', 'status_code': 204}), 204

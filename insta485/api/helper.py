@@ -63,6 +63,7 @@ def new_password_hash(password):
     password_db_string = "$".join([algorithm, salt, password_hash])
     return password_db_string
 
+
 def get_all_comments(postid, connection):
     """Get all comments commented on post with postid."""
     comments = connection.execute(
@@ -96,6 +97,7 @@ def get_likes(postid, connection):
         if dictionary.get('owner') == flask.session.get('logname'):
             likeid = dictionary.get('likeid')
     return likes, likeid
+
 
 def verify_user(username, password):
     """Takes the given username and password and verifies."""

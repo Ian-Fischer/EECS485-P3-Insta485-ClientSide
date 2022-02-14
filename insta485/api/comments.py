@@ -15,12 +15,21 @@ from insta485.api.helper import check_authentication
 def make_comment():
     """Make a comment on the specified post."""
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     postid = flask.request.args.get('postid')
     comment = flask.request.json.get('text')
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
+    # check that the post exists
+    post = connection.execute(
+        'SELECT P.postid '
+        'FROM posts P '
+        'WHERE postid = ? ',
+        (postid, )
+    ).fetchall()
+    if len(post) == 0:
+         return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     # put the comment in
     connection.execute(
         'INSERT INTO comments(owner, postid, text) '
@@ -54,7 +63,7 @@ def make_comment():
 def delete_comment(commentid):
     """Delete a comment."""
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     # connect to db
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
@@ -66,11 +75,11 @@ def delete_comment(commentid):
         (commentid,)
     ).fetchall()
 
-    if len(comment) != 1:
-        return flask.jsonify(**{'message': 'not found'}), 404
+    if len(comment) == 0:
+        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     # check if they own the comment
     if comment[0]['owner'] != flask.session.get('logname'):
-        return flask.jsonify(**{'message': 'forbidden'}), 403
+        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     # they own the comment, now delete
     connection.execute(
         'DELETE FROM comments '
@@ -80,4 +89,4 @@ def delete_comment(commentid):
     # commit changes
     connection.commit()
     # return 204
-    return flask.jsonify(**{'message': 'no content'}), 204
+    return flask.jsonify(**{'message': 'No Content', 'status_code': 204 }), 204

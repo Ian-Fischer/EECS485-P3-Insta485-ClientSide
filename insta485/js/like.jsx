@@ -1,25 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-class Like extends React.Component {
-    
-    constructor(props) {
-        super(props)
-        this.state = { numlikes: 0, lognameLiked: false };
-    }
 
-    componentDidMount() {
-
-    }
-
-    render() {
-
-    }
-
+// props should have lognameLiked and numLikes
+function Likes(props) {
+    // the number of likes
+    // logname liked it
+    return(
+        <div>
+            {props.numLikes != 1 && <p>{props.numLikes} likes</p>}
+            {props.numLikes == 1 && <p>{props.numLikes} like </p>}
+            {props.lognameLiked &&
+                <button className="like-unlike-button">
+                    Unlike
+                </button>
+            }
+            {!props.lognameLiked &&
+                <button className="like-unlike-button">
+                    Like
+                </button>
+            }
+        </div>
+    )
 }
-
-Like.PropTypes = {
-    url = PropTypes.string.isRequired,
-};
-
-export default Like;
