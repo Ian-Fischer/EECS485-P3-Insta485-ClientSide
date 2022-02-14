@@ -110,7 +110,7 @@ def verify_user(username, password):
     ).fetchall()
     # return 403 if the user does not exist
     if len(current_db_password) != 1:
-        return flask.jsonify(**{'message': 'Forbidden'}), 403
+        return False
     # user exists, now check password
     db_user = {'username': current_db_password[0]['username'], 
                'password': current_db_password[0]['password']}
