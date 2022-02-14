@@ -47,8 +47,7 @@ class Post extends React.Component {
     );
   }
 }
-
-// this checks tpe of immutable props that are passed down
+// this checks type of immutable props that are passed down
 // makes sure that the url we get is a string, so we can
 // use it safely
 Post.propTypes = {

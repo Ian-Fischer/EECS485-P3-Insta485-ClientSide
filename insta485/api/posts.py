@@ -35,7 +35,7 @@ def get_posts():
     return flask.jsonify(**{'message': 'bad request', 'status_code': 400}), 400
   postid_lte = 0
   # what we query depends on what we know
-  if page > 0:
+  if flask.request.args.get('postid_lte', type=int):
     postid_lte = flask.request.args.get('postid_lte', type=int)
     # query all necessary posts
     user_posts = connection.execute(
