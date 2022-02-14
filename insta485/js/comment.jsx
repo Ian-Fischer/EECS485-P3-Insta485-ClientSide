@@ -8,7 +8,7 @@ function Comment(props) {
     // TODO: button functionality
     return (
         <div class="comment">
-            <p>{props.owner}</p>
+            <a href={"/users/"+owner+"/"}><b><p>{props.owner}</p></b></a>
             <p>{props.text}</p>
             { props.lognameOwnsThis &&
                 <button className="delete-comment-button">

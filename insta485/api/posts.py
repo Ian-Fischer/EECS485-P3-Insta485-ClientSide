@@ -9,7 +9,7 @@ import flask
 import insta485
 import sqlite3
 from insta485.api.helper import check_authentication, get_likes
-from insta485.api.helper import get_all_comments, chunks
+from insta485.api.helper import get_all_comments
 
 """
 URLs in this file:
@@ -22,7 +22,7 @@ URLs in this file:
 def get_posts():
   """Return the 10 newests posts"""
   if not check_authentication():
-    return flask.jsonify(**{'Message': 'Forbidden', 'status_code': 403}), 403
+    return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
   # connect to the db, get logname
   connection = insta485.model.get_db()
   connection.row_factory = sqlite3.Row

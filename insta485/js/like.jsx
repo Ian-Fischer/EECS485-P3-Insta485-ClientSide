@@ -17,7 +17,7 @@ function Likes(props) {
                 </button>
             }
             {!props.lognameLiked &&
-                <button className="like-unlike-button">
+                <button className="like-unlike-button" >
                     Like
                 </button>
             }

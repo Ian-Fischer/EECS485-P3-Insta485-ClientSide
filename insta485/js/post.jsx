@@ -15,7 +15,8 @@ class Post extends React.Component {
       numLikes = 0, 
       lognameLiked = false, 
       postid: 0,
-      timestamp = 0
+      timestamp = 0,
+      comments = [] // check this is how you initialize an empty list
     };
     // ^^ these will be changed once we get information for RestAPI
   }
@@ -56,6 +57,10 @@ class Post extends React.Component {
         <img src={"/uploads/"+imgUrl+"/"} alt="Post" style="width:400px; height:400px; position: relative; margin-right: auto; margin-left: auto;"/>
         <Like numLikes={numLikes} lognameLiked={lognameLiked}/>
         !!! CALL TO COMMENTS FUNCTION HERE !!!
+        {comments.map(<<ANON FUNCTION PASSED IN>> => {
+          <Comment <<ALL ATTRBUTES NEEDED>>/>
+          
+        })}
       </div>
     );
   }
