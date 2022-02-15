@@ -11,22 +11,24 @@
                 margin-right: auto;
                 color: white;
             }
+            .toppost {
+                font-size: xx-large;
+            }
             ul {
                 position: sticky;
-                font-size: xx-large;
                 list-style-type: none;
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
             }
             li {
-                display: inline
+                display: inline-block
             }
             li a {
                 color: white;
-                text-align: center;
                 padding: 20px 20px;
                 text-decoration: none;
+                display: inline-block;
             }
             .leftstuff {
                 float: right;
@@ -84,9 +86,8 @@
                 background-color: lightgray;
             }
             .fullcomment {
-                display: inline;
-                white-space: nowrap;
-                overflow: hidden;
+                color: white;
+                font-size: medium;
             }
             .posts {
                 background-color: rgba(122, 198, 248, 0.678);
@@ -138,7 +139,7 @@
         </style>
     </head> 
     <body>
-        <ul style="background-color: rgb(0, 95, 51, 0.5); border-radius: 10px;">
+        <ul style="background-color: rgb(0, 95, 51, 0.5); border-radius: 10px; font-size: xx-large;">
             <li><a href="{{ url_for('show_index') }}">I(a)nstagram!</a></li>
             <li class="leftstuff"><a href="{{ url_for('show_explore') }}">explore</a></li>
             <li class="leftstuff"><a href="{{ url_for('show_user', user_url_slug=logname) }}">{{logname}}</a></li>

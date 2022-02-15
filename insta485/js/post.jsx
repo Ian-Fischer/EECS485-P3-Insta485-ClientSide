@@ -118,24 +118,16 @@ class Post extends React.Component {
   render() {
     // This line automatically assigns this.state.imgUrl to the const variable imgUrl
     // and this.state.owner to the const variable owner
-    const { imgUrl, owner } = this.state;
+    // humanized time stamp
     var humanized = moment(this.state.timestamp).fromNow(true);
-    var comments = this.state.comments.map((comment) => {
-      return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
-    })
-
-    // Render number of post image and post owner
-    // FIXME: add comments
-    console.log("in render")
-    console.log(comments)
     return (
       <div className="posts">
-        <ul>
-          <li><a href={"/users/"+this.state.owner+"/"}><img src={this.state.ownerImgUrl} className="profilepicture" alt="Profile Picture"/></a></li>
-          <li><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
+        <ul className='toppost'>
+          <li className='leftStuff'><a href={"/users/"+this.state.owner+"/"}><img src={this.state.ownerImgUrl} className="profilepicture" alt="Profile Picture"/></a></li>
+          <li className='leftStuff'><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
           <li><a href={"/posts/"+this.state.postid+"/"}  className="time">{humanized}</a></li>
         </ul>
-        <img src={this.state.ownerShowUrl} alt="Post" onDoubleClick={this.handleLike}/>
+        <img src={this.state.imgUrl} alt="Post" onDoubleClick={this.handleLike}/>
         <Like numLikes={this.state.likes.numLikes} lognameLikedThis={this.state.likes.lognameLikesThis} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
         {this.state.comments.map((comment) => {
           return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>

@@ -47,16 +47,14 @@ var Comment = /*#__PURE__*/function (_React$Component) {
       var _this = this;
 
       console.log(this.props.comment.owner);
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", {
-        className: "fullcomment"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("a", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("a", {
         href: "/users/" + this.props.comment.owner + "/"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("b", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.owner))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.text), this.props.comment.lognameOwnsThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("b", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.owner)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.text)), this.props.comment.lognameOwnsThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
         className: "delete-comment-button",
         onClick: function onClick() {
           return _this.props.handleDeleteComment(_this.props.comment.url);
         }
-      }, "Delete Comment"));
+      }, "Delete Comment")));
     }
   }]);
 
@@ -328,36 +326,30 @@ var Post = /*#__PURE__*/function (_React$Component) {
 
       // This line automatically assigns this.state.imgUrl to the const variable imgUrl
       // and this.state.owner to the const variable owner
-      var _this$state = this.state,
-          imgUrl = _this$state.imgUrl,
-          owner = _this$state.owner;
+      // humanized time stamp
       var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true);
-      var comments = this.state.comments.map(function (comment) {
-        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_comment__WEBPACK_IMPORTED_MODULE_9__["default"], {
-          comment: comment,
-          handleDeleteComment: _this6.handleDeleteComment
-        });
-      }); // Render number of post image and post owner
-      // FIXME: add comments
-
-      console.log("in render");
-      console.log(comments);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
         className: "posts"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("ul", {
+        className: "toppost"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", {
+        className: "leftStuff"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
         href: "/users/" + this.state.owner + "/"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
         src: this.state.ownerImgUrl,
         className: "profilepicture",
         alt: "Profile Picture"
-      }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
+      }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", {
+        className: "leftStuff"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
         href: "/users/" + this.state.owner + "/",
         className: "username"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("b", null, this.state.owner))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
         href: "/posts/" + this.state.postid + "/",
         className: "time"
       }, humanized))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-        src: this.state.ownerShowUrl,
+        src: this.state.imgUrl,
         alt: "Post",
         onDoubleClick: this.handleLike
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_like__WEBPACK_IMPORTED_MODULE_8__["default"], {

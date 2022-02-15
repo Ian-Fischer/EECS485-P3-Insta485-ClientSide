@@ -9,15 +9,17 @@ class Comment extends React.Component {
     render() {
         console.log(this.props.comment.owner);
         return (
-            <div className='fullcomment'>
-                <a href={"/users/"+this.props.comment.owner+"/"}><b><p>{this.props.comment.owner}</p></b></a>
-                <p>{this.props.comment.text}</p>
+            <ul>
+                <li><a href={"/users/"+this.props.comment.owner+"/"}><b><p>{this.props.comment.owner}</p></b></a></li>
+                <li><p>{this.props.comment.text}</p></li>
                 { this.props.comment.lognameOwnsThis &&
-                    <button className="delete-comment-button" onClick={() => this.props.handleDeleteComment(this.props.comment.url)}>
-                        Delete Comment
-                    </button>
+                    <li>
+                        <button className="delete-comment-button" onClick={() => this.props.handleDeleteComment(this.props.comment.url)}>
+                            Delete Comment
+                        </button>
+                    </li>
                 }
-            </div>
+            </ul>
         )
     }
 }
