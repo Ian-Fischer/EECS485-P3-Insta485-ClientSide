@@ -44,9 +44,16 @@ def make_like():
     )
     # commit changes
     connection.commit()
+    likeid = connection.execute(
+        'SELECT L.likeid '
+        'FROM likes L '
+        'WHERE L.owner = ? AND L.postid = ? ',
+        (flask.session.get('logname'), postid,)
+    ).fetchall()
+    # build response dict
     context = {
-        'likeid': postid,
-        'url': f'/api/v1/likes/{postid}/'
+        'likeid': likeid[0]['likeid'],
+        'url': f'/api/v1/likes/{likeid[0]["likeid"]}/'
     }
     return flask.jsonify(**context), 201
 

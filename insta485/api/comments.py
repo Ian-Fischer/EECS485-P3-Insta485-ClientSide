@@ -48,11 +48,11 @@ def make_comment():
     text = flask.request.json.get('text')
     # build the response
     context = {
-        'commentid': commentid,
-        'lognameOwnsThis': True,
         'owner': flask.session.get('logname'),
-        'ownerShowUrl': '/users/{logname}/'.format(logname=flask.session.get('logname')),
         'text': text,
+        'commentid': commentid,
+        'ownerShowUrl': '/users/{logname}/'.format(logname=flask.session.get('logname')),
+        'lognameOwnsThis': True,
         'url': '/api/v1/comments/{cid}/'.format(cid=commentid)
     }
     # return w/ 201

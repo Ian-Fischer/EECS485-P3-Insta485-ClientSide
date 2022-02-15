@@ -1,20 +1,25 @@
 import React from 'react';
 
-function Comment(props) {
-    // owner of the comment
-    // logname
-    // text of the comment
-    // need logname to know if we show a delete button on the comment
-    // TODO: button functionality
-    return (
-        <div class="comment">
-            <a href={"/users/"+owner+"/"}><b><p>{props.owner}</p></b></a>
-            <p>{props.text}</p>
-            { props.lognameOwnsThis &&
-                <button className="delete-comment-button">
-                    Delete Comment
-                </button>
-            }
-        </div>
-    )
-}
+class Comment extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div>
+                <a href={"/users/"+owner+"/"}><b><p>{this.props.owner}</p></b></a>
+                <p>{this.props.text}</p>
+                { this.props.lognameOwnsThis &&
+                    <button className="delete-comment-button" onClick={() => this.props.handleDeleteComment(this.props.comment.url)}>
+                        Delete Comment
+                    </button>
+                }
+            </div>
+        )
+    }
+    }
+
+
+export default Comment;

@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
+import Like from './like'
+import Comment from './comment'
 
 class Post extends React.Component {
   /* Display number of image and post owner of a single post
@@ -8,23 +11,27 @@ class Post extends React.Component {
   constructor(props) {
     // Initialize mutable state
     super(props);
-    this.state = { 
-      imgUrl: '', 
-      owner: '', 
-      profileImgURL: '', 
-      numLikes = 0, 
-      lognameLiked = false, 
+    this.state = {
+      comments: [],
+      created: "",
+      imgUrl: "",
+      likes: {},
+      owner: "",
+      ownerImgUrl: "",
+      ownerShowUrl: "",
+      postShowUrl: "",
       postid: 0,
-      timestamp = 0,
-      comments = [] // check this is how you initialize an empty list
     };
-    // ^^ these will be changed once we get information for RestAPI
+
+    this.handleLike = this.handleLike.bind(this);
+    this.handleUnlike = this.handleUnlike.bind(this);
+    this.handleDeleteComment = this.handleDeleteComment.bind(this)
   }
 
   componentDidMount() {
     // This line automatically assigns this.props.url to the const variable url
     const { url } = this.props;
-
+    console.log('mounting')
     // Call REST API to get the post's information
     fetch(url, { credentials: 'same-origin' })
       .then((response) => {
@@ -33,8 +40,73 @@ class Post extends React.Component {
       })
       .then((data) => {
         this.setState({
+          comments: data.comments,
+          created: data.created,
           imgUrl: data.imgUrl,
-          owner: data.owner
+          likes: data.likes,
+          owner: data.owner,
+          ownerImgUrl: data.ownerImgUrl,
+          ownerShowUrl: data.ownerShowUrl,
+          postShowUrl: data.postShowUrl,
+          postid: data.postid,
+        });
+      })
+      .catch((error) => console.log(error));
+  }
+
+  handleLike() {
+    const makeLikeUrl = '/api/v1/likes/';
+
+    fetch(makeLikeUrl, { credentials: 'same-origin' })
+      .then((response) => {
+        if (!response.ok) throw Error(response.statusText);
+        return response.json();
+      })
+      .then((data) => {
+        this.setState((state) => {
+          // increment likes, change lognameLikesThis to true, url to likeid
+          var newStateLikes = {
+            numLikes: state.likes.numLikes + 1,
+            lognameLikesThis: true,
+            url: data.url
+          }
+          return { like: newStateLikes }
+        });
+      })
+      .catch((error) => console.log(error));
+  }
+
+  handleUnlike() {
+    const deleteLikeURL = this.state.likes.url
+    fetch(deleteLikeURL, { credentials: 'same-origin' })
+      .then((response) => {
+        if (!response.ok) throw Error(response.statusText);
+        return response.json();
+      })
+      .then(() => {
+        this.setState((state) => {
+          // decrement likes, change lognameLikesThis to false, url to null
+          var newStateLikes = {
+            numLikes: state.likes.numLikes - 1,
+            lognameLikesThis: false,
+            url: null
+          }
+          return {like: newStateLikes}
+        });
+      })
+      .catch((error) => console.log(error));
+  }
+
+  handleDeleteComment(url) {
+    fetch(url, { credentials: 'same-origin'})
+      .then((response) => {
+        if (!response.ok) throw Error(response.statusText);
+        return response.json();
+      })
+      .then(() => {
+        this.setState((state) => {
+          var newComments = state.comments.filter((comment) => comment.url != url)
+          return {comments: newComments}
         });
       })
       .catch((error) => console.log(error));
@@ -44,27 +116,28 @@ class Post extends React.Component {
     // This line automatically assigns this.state.imgUrl to the const variable imgUrl
     // and this.state.owner to the const variable owner
     const { imgUrl, owner } = this.state;
-
+    var humanized = moment(this.state.timestamp).fromNow(true);
+    console.log("in render")
     // Render number of post image and post owner
     // FIXME: add comments
     return (
       <div className="post">
         <ul>
-          <li><a href={"/users/"+owner+"/"}><img src={"/uploads/"+profileImgURL+"/"} class="profilepicture" alt="Profile Picture"/></a></li>
-          <li><a href={"/users/"+owner+"/"} class="username"><b>{owner}</b></a></li>
-          <li><a href={"/posts/"+postid+"/"}  class="time">{timestamp}</a></li>
+          <li><a href={"/users/"+this.state.owner+"/"}><img src={"/uploads/"+this.state.profileImgURL+"/"} className="profilepicture" alt="Profile Picture"/></a></li>
+          <li><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
+          <li><a href={"/posts/"+this.state.postid+"/"}  className="time">{humanized}</a></li>
         </ul>
-        <img src={"/uploads/"+imgUrl+"/"} alt="Post" style="width:400px; height:400px; position: relative; margin-right: auto; margin-left: auto;"/>
-        <Like numLikes={numLikes} lognameLiked={lognameLiked}/>
-        !!! CALL TO COMMENTS FUNCTION HERE !!!
-        {comments.map(<<ANON FUNCTION PASSED IN>> => {
-          <Comment <<ALL ATTRBUTES NEEDED>>/>
-          
-        })}
+        <img src={"/uploads/" + this.state.imgUrl + "/"} alt="Post" onDoubleClick={this.handleLike}/>
+        <Like numLikes={this.state.likes.numLikes} lognameLiked={this.state.likes.lognameLiked} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
+        {this.state.comments.map((comment) => {
+          <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
+        })
+        }
       </div>
     );
   }
 }
+
 // this checks type of immutable props that are passed down
 // makes sure that the url we get is a string, so we can
 // use it safely

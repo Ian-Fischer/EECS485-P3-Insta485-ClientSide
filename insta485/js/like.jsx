@@ -3,24 +3,32 @@ import PropTypes from 'prop-types';
 
 
 // props should have lognameLiked and numLikes
-function Likes(props) {
+class Likes extends React.Component {
     // the number of likes
     // logname liked it
     // TODO: button functionality stuff
-    return(
-        <div>
-            {props.numLikes != 1 && <p>{props.numLikes} likes</p>}
-            {props.numLikes == 1 && <p>{props.numLikes} like </p>}
-            {props.lognameLiked &&
-                <button className="like-unlike-button">
-                    Unlike
-                </button>
-            }
-            {!props.lognameLiked &&
-                <button className="like-unlike-button" >
-                    Like
-                </button>
-            }
-        </div>
-    )
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return(
+            <div>
+                {this.props.numLikes != 1 && <p>{this.props.numLikes} likes</p>}
+                {this.props.numLikes == 1 && <p>{this.props.numLikes} like </p>}
+                {this.props.lognameLiked &&
+                    <button className="like-unlike-button" onClick={this.props.handleUnlike}>
+                        Unlike
+                    </button>
+                }
+                {!this.props.lognameLiked &&
+                    <button className="like-unlike-button" onClick={this.props.handleLike}>
+                        Like
+                    </button>
+                }
+            </div>
+        )
+    }
 }
+
+export default Likes;
