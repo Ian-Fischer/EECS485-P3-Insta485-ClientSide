@@ -111,6 +111,7 @@ var Likes = /*#__PURE__*/function (_React$Component) {
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(Likes, [{
     key: "render",
     value: function render() {
+      console.log(this.props);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", null, this.props.numLikes != 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " likes"), this.props.numLikes == 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " like "), this.props.lognameLiked && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
         className: "like-unlike-button",
         onClick: this.props.handleUnlike
@@ -206,8 +207,7 @@ var Post = /*#__PURE__*/function (_React$Component) {
       var _this2 = this;
 
       // This line automatically assigns this.props.url to the const variable url
-      var url = this.props.url;
-      console.log('mounting'); // Call REST API to get the post's information
+      var url = this.props.url; // Call REST API to get the post's information
 
       fetch(url, {
         credentials: 'same-origin'
@@ -235,24 +235,29 @@ var Post = /*#__PURE__*/function (_React$Component) {
     value: function handleLike() {
       var _this3 = this;
 
-      var makeLikeUrl = '/api/v1/likes/';
+      var makeLikeUrl = '/api/v1/likes/?postid=' + this.state.postid;
       fetch(makeLikeUrl, {
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        method: 'POST'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(function (data) {
-        _this3.setState(function (state) {
-          // increment likes, change lognameLikesThis to true, url to likeid
-          var newStateLikes = {
-            numLikes: state.likes.numLikes + 1,
-            lognameLikesThis: true,
-            url: data.url
-          };
-          return {
-            like: newStateLikes
-          };
-        });
+        console.log(data);
+
+        if (data.response != 200) {
+          _this3.setState(function () {
+            // increment likes, change lognameLikesThis to true, url to likeid
+            var newStateLikes = {
+              numLikes: _this3.state.likes.numLikes + 1,
+              lognameLikesThis: true,
+              url: data.url
+            };
+            return {
+              likes: newStateLikes
+            };
+          });
+        }
       })["catch"](function (error) {
         return console.log(error);
       });
@@ -264,7 +269,8 @@ var Post = /*#__PURE__*/function (_React$Component) {
 
       var deleteLikeURL = this.state.likes.url;
       fetch(deleteLikeURL, {
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        method: 'DELETE'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
@@ -290,7 +296,8 @@ var Post = /*#__PURE__*/function (_React$Component) {
       var _this5 = this;
 
       fetch(url, {
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        method: 'DELETE'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
@@ -317,8 +324,7 @@ var Post = /*#__PURE__*/function (_React$Component) {
       var _this$state = this.state,
           imgUrl = _this$state.imgUrl,
           owner = _this$state.owner;
-      var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true);
-      console.log("in render"); // Render number of post image and post owner
+      var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true); // Render number of post image and post owner
       // FIXME: add comments
 
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
@@ -326,7 +332,7 @@ var Post = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
         href: "/users/" + this.state.owner + "/"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-        src: "/uploads/" + this.state.profileImgURL + "/",
+        src: this.state.ownerImgUrl,
         className: "profilepicture",
         alt: "Profile Picture"
       }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
@@ -336,7 +342,7 @@ var Post = /*#__PURE__*/function (_React$Component) {
         href: "/posts/" + this.state.postid + "/",
         className: "time"
       }, humanized))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-        src: "/uploads/" + this.state.imgUrl + "/",
+        src: this.state.ownerShowUrl,
         alt: "Post",
         onDoubleClick: this.handleLike
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_like__WEBPACK_IMPORTED_MODULE_8__["default"], {

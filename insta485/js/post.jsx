@@ -31,7 +31,6 @@ class Post extends React.Component {
   componentDidMount() {
     // This line automatically assigns this.props.url to the const variable url
     const { url } = this.props;
-    console.log('mounting')
     // Call REST API to get the post's information
     fetch(url, { credentials: 'same-origin' })
       .then((response) => {
@@ -55,30 +54,32 @@ class Post extends React.Component {
   }
 
   handleLike() {
-    const makeLikeUrl = '/api/v1/likes/';
-
-    fetch(makeLikeUrl, { credentials: 'same-origin' })
+    const makeLikeUrl = '/api/v1/likes/?postid='+this.state.postid;
+    fetch(makeLikeUrl, { credentials: 'same-origin', method: 'POST' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       })
       .then((data) => {
-        this.setState((state) => {
-          // increment likes, change lognameLikesThis to true, url to likeid
-          var newStateLikes = {
-            numLikes: state.likes.numLikes + 1,
-            lognameLikesThis: true,
-            url: data.url
-          }
-          return { like: newStateLikes }
-        });
+        console.log(data)
+        if (data.response != 200) {
+          this.setState(() => {
+            // increment likes, change lognameLikesThis to true, url to likeid
+            const newStateLikes = {
+              numLikes: this.state.likes.numLikes + 1,
+              lognameLikesThis: true,
+              url: data.url
+            };
+            return { likes: newStateLikes};
+          });
+      }
       })
       .catch((error) => console.log(error));
   }
 
   handleUnlike() {
     const deleteLikeURL = this.state.likes.url
-    fetch(deleteLikeURL, { credentials: 'same-origin' })
+    fetch(deleteLikeURL, { credentials: 'same-origin', method: 'DELETE' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
@@ -98,7 +99,7 @@ class Post extends React.Component {
   }
 
   handleDeleteComment(url) {
-    fetch(url, { credentials: 'same-origin'})
+    fetch(url, { credentials: 'same-origin', method: 'DELETE'})
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
@@ -117,18 +118,17 @@ class Post extends React.Component {
     // and this.state.owner to the const variable owner
     const { imgUrl, owner } = this.state;
     var humanized = moment(this.state.timestamp).fromNow(true);
-    console.log("in render")
     // Render number of post image and post owner
     // FIXME: add comments
     return (
       <div className="post">
         <ul>
-          <li><a href={"/users/"+this.state.owner+"/"}><img src={"/uploads/"+this.state.profileImgURL+"/"} className="profilepicture" alt="Profile Picture"/></a></li>
+          <li><a href={"/users/"+this.state.owner+"/"}><img src={this.state.ownerImgUrl} className="profilepicture" alt="Profile Picture"/></a></li>
           <li><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
           <li><a href={"/posts/"+this.state.postid+"/"}  className="time">{humanized}</a></li>
         </ul>
-        <img src={"/uploads/" + this.state.imgUrl + "/"} alt="Post" onDoubleClick={this.handleLike}/>
-        <Like numLikes={this.state.likes.numLikes} lognameLiked={this.state.likes.lognameLiked} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
+        <img src={this.state.ownerShowUrl} alt="Post" onDoubleClick={this.handleLike}/>
+        <Like numLikes={state.likes.numLikes} lognameLiked={state.likes.lognameLiked} handleLike={handleLike} handleUnlike={handleUnlike}/>
         {this.state.comments.map((comment) => {
           <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
         })

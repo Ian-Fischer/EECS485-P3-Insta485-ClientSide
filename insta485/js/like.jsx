@@ -12,6 +12,7 @@ class Likes extends React.Component {
     }
 
     render() {
+        console.log(this.props)
         return(
             <div>
                 {this.props.numLikes != 1 && <p>{this.props.numLikes} likes</p>}
