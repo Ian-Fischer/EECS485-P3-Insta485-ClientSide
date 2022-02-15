@@ -7,11 +7,12 @@ class Comment extends React.Component {
     }
 
     render() {
+        console.log(this.props.comment.owner);
         return (
-            <div>
-                <a href={"/users/"+owner+"/"}><b><p>{this.props.owner}</p></b></a>
-                <p>{this.props.text}</p>
-                { this.props.lognameOwnsThis &&
+            <div className='fullcomment'>
+                <a href={"/users/"+this.props.comment.owner+"/"}><b><p>{this.props.comment.owner}</p></b></a>
+                <p>{this.props.comment.text}</p>
+                { this.props.comment.lognameOwnsThis &&
                     <button className="delete-comment-button" onClick={() => this.props.handleDeleteComment(this.props.comment.url)}>
                         Delete Comment
                     </button>
@@ -19,7 +20,7 @@ class Comment extends React.Component {
             </div>
         )
     }
-    }
+}
 
 
 export default Comment;

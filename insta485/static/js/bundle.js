@@ -46,9 +46,12 @@ var Comment = /*#__PURE__*/function (_React$Component) {
     value: function render() {
       var _this = this;
 
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("a", {
-        href: "/users/" + owner + "/"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("b", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.owner))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.text), this.props.lognameOwnsThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
+      console.log(this.props.comment.owner);
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", {
+        className: "fullcomment"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("a", {
+        href: "/users/" + this.props.comment.owner + "/"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("b", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.owner))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.comment.text), this.props.comment.lognameOwnsThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
         className: "delete-comment-button",
         onClick: function onClick() {
           return _this.props.handleDeleteComment(_this.props.comment.url);
@@ -112,10 +115,10 @@ var Likes = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       console.log(this.props);
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", null, this.props.numLikes != 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " likes"), this.props.numLikes == 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " like "), this.props.lognameLiked && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("div", null, this.props.numLikes != 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " likes"), this.props.numLikes == 1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("p", null, this.props.numLikes, " like "), this.props.lognameLikedThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
         className: "like-unlike-button",
         onClick: this.props.handleUnlike
-      }, "Unlike"), !this.props.lognameLiked && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
+      }, "Unlike"), !this.props.lognameLikedThis && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5__.createElement("button", {
         className: "like-unlike-button",
         onClick: this.props.handleLike
       }, "Like"));
@@ -215,6 +218,8 @@ var Post = /*#__PURE__*/function (_React$Component) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(function (data) {
+        console.log(data.comments);
+
         _this2.setState({
           comments: data.comments,
           created: data.created,
@@ -226,6 +231,9 @@ var Post = /*#__PURE__*/function (_React$Component) {
           postShowUrl: data.postShowUrl,
           postid: data.postid
         });
+
+        console.log('after the setState');
+        console.log(_this2.state.comments);
       })["catch"](function (error) {
         return console.log(error);
       });
@@ -243,9 +251,9 @@ var Post = /*#__PURE__*/function (_React$Component) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(function (data) {
-        console.log(data);
+        console.log(_this3.state.likes.lognameLikesThis);
 
-        if (data.response != 200) {
+        if (_this3.state.likes.lognameLikesThis == false) {
           _this3.setState(function () {
             // increment likes, change lognameLikesThis to true, url to likeid
             var newStateLikes = {
@@ -273,17 +281,16 @@ var Post = /*#__PURE__*/function (_React$Component) {
         method: 'DELETE'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
-        return response.json();
       }).then(function () {
-        _this4.setState(function (state) {
+        _this4.setState(function () {
           // decrement likes, change lognameLikesThis to false, url to null
           var newStateLikes = {
-            numLikes: state.likes.numLikes - 1,
+            numLikes: _this4.state.likes.numLikes - 1,
             lognameLikesThis: false,
             url: null
           };
           return {
-            like: newStateLikes
+            likes: newStateLikes
           };
         });
       })["catch"](function (error) {
@@ -295,12 +302,12 @@ var Post = /*#__PURE__*/function (_React$Component) {
     value: function handleDeleteComment(url) {
       var _this5 = this;
 
+      console.log(url);
       fetch(url, {
         credentials: 'same-origin',
         method: 'DELETE'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
-        return response.json();
       }).then(function () {
         _this5.setState(function (state) {
           var newComments = state.comments.filter(function (comment) {
@@ -324,11 +331,19 @@ var Post = /*#__PURE__*/function (_React$Component) {
       var _this$state = this.state,
           imgUrl = _this$state.imgUrl,
           owner = _this$state.owner;
-      var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true); // Render number of post image and post owner
+      var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true);
+      var comments = this.state.comments.map(function (comment) {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_comment__WEBPACK_IMPORTED_MODULE_9__["default"], {
+          comment: comment,
+          handleDeleteComment: _this6.handleDeleteComment
+        });
+      }); // Render number of post image and post owner
       // FIXME: add comments
 
+      console.log("in render");
+      console.log(comments);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-        className: "post"
+        className: "posts"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
         href: "/users/" + this.state.owner + "/"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
@@ -347,12 +362,11 @@ var Post = /*#__PURE__*/function (_React$Component) {
         onDoubleClick: this.handleLike
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_like__WEBPACK_IMPORTED_MODULE_8__["default"], {
         numLikes: this.state.likes.numLikes,
-        lognameLiked: this.state.likes.lognameLiked,
+        lognameLikedThis: this.state.likes.lognameLikesThis,
         handleLike: this.handleLike,
         handleUnlike: this.handleUnlike
       }), this.state.comments.map(function (comment) {
-        /*#__PURE__*/
-        react__WEBPACK_IMPORTED_MODULE_6__.createElement(_comment__WEBPACK_IMPORTED_MODULE_9__["default"], {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_comment__WEBPACK_IMPORTED_MODULE_9__["default"], {
           comment: comment,
           handleDeleteComment: _this6.handleDeleteComment
         });

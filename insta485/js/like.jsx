@@ -17,12 +17,12 @@ class Likes extends React.Component {
             <div>
                 {this.props.numLikes != 1 && <p>{this.props.numLikes} likes</p>}
                 {this.props.numLikes == 1 && <p>{this.props.numLikes} like </p>}
-                {this.props.lognameLiked &&
+                {this.props.lognameLikedThis &&
                     <button className="like-unlike-button" onClick={this.props.handleUnlike}>
                         Unlike
                     </button>
                 }
-                {!this.props.lognameLiked &&
+                {!this.props.lognameLikedThis &&
                     <button className="like-unlike-button" onClick={this.props.handleLike}>
                         Like
                     </button>

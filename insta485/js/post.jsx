@@ -38,6 +38,7 @@ class Post extends React.Component {
         return response.json();
       })
       .then((data) => {
+        console.log(data.comments)
         this.setState({
           comments: data.comments,
           created: data.created,
@@ -49,6 +50,8 @@ class Post extends React.Component {
           postShowUrl: data.postShowUrl,
           postid: data.postid,
         });
+        console.log('after the setState')
+        console.log(this.state.comments)
       })
       .catch((error) => console.log(error));
   }
@@ -61,8 +64,8 @@ class Post extends React.Component {
         return response.json();
       })
       .then((data) => {
-        console.log(data)
-        if (data.response != 200) {
+        console.log(this.state.likes.lognameLikesThis)
+        if (this.state.likes.lognameLikesThis == false) {
           this.setState(() => {
             // increment likes, change lognameLikesThis to true, url to likeid
             const newStateLikes = {
@@ -82,27 +85,26 @@ class Post extends React.Component {
     fetch(deleteLikeURL, { credentials: 'same-origin', method: 'DELETE' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
-        return response.json();
       })
       .then(() => {
-        this.setState((state) => {
+        this.setState(() => {
           // decrement likes, change lognameLikesThis to false, url to null
           var newStateLikes = {
-            numLikes: state.likes.numLikes - 1,
+            numLikes: this.state.likes.numLikes - 1,
             lognameLikesThis: false,
             url: null
           }
-          return {like: newStateLikes}
+          return {likes: newStateLikes}
         });
       })
       .catch((error) => console.log(error));
   }
 
   handleDeleteComment(url) {
+    console.log(url)
     fetch(url, { credentials: 'same-origin', method: 'DELETE'})
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
-        return response.json();
       })
       .then(() => {
         this.setState((state) => {
@@ -118,21 +120,26 @@ class Post extends React.Component {
     // and this.state.owner to the const variable owner
     const { imgUrl, owner } = this.state;
     var humanized = moment(this.state.timestamp).fromNow(true);
+    var comments = this.state.comments.map((comment) => {
+      return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
+    })
+
     // Render number of post image and post owner
     // FIXME: add comments
+    console.log("in render")
+    console.log(comments)
     return (
-      <div className="post">
+      <div className="posts">
         <ul>
           <li><a href={"/users/"+this.state.owner+"/"}><img src={this.state.ownerImgUrl} className="profilepicture" alt="Profile Picture"/></a></li>
           <li><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
           <li><a href={"/posts/"+this.state.postid+"/"}  className="time">{humanized}</a></li>
         </ul>
         <img src={this.state.ownerShowUrl} alt="Post" onDoubleClick={this.handleLike}/>
-        <Like numLikes={state.likes.numLikes} lognameLiked={state.likes.lognameLiked} handleLike={handleLike} handleUnlike={handleUnlike}/>
+        <Like numLikes={this.state.likes.numLikes} lognameLikedThis={this.state.likes.lognameLikesThis} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
         {this.state.comments.map((comment) => {
-          <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
-        })
-        }
+          return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
+        })}
       </div>
     );
   }
