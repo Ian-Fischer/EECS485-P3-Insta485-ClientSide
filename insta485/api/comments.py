@@ -14,9 +14,12 @@ from insta485.api.helper import check_authentication
 @insta485.app.route('/api/v1/comments/', methods=['POST'])
 def make_comment():
     """Make a comment on the specified post."""
+    import pdb; pdb.set_trace()
     if not check_authentication():
         return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
     postid = flask.request.args.get('postid')
+    if not postid:
+        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
     comment = flask.request.json.get('text')
     # connect to db
     connection = insta485.model.get_db()

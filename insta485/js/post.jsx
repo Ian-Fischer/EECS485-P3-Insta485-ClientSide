@@ -40,7 +40,6 @@ class Post extends React.Component {
         return response.json();
       })
       .then((data) => {
-        console.log(data.comments)
         this.setState({
           comments: data.comments,
           created: data.created,
@@ -52,8 +51,6 @@ class Post extends React.Component {
           postShowUrl: data.postShowUrl,
           postid: data.postid,
         });
-        console.log('after the setState')
-        console.log(this.state.comments)
       })
       .catch((error) => console.log(error));
   }
@@ -66,7 +63,6 @@ class Post extends React.Component {
         return response.json();
       })
       .then((data) => {
-        console.log(this.state.likes.lognameLikesThis)
         if (this.state.likes.lognameLikesThis == false) {
           this.setState(() => {
             // increment likes, change lognameLikesThis to true, url to likeid
@@ -103,8 +99,7 @@ class Post extends React.Component {
   }
 
   handleDeleteComment(url) {
-    console.log(url)
-    fetch(url, { credentials: 'same-origin', method: 'DELETE'})
+    fetch(url, { credentials: 'same-origin', method: 'DELETE' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
       })
@@ -118,12 +113,16 @@ class Post extends React.Component {
   }
 
   handleSubmitComment() {
-    const makeCommentUrl = '/api/v1/comments/?postid='+this.state.postid;
-    fetch(makeCommentUrl, {credentials: 'same-origin', method: 'POST'})
+    const url = "/api/v1/comments/?postid="+this.state.postid;
+    alert(url)
+    fetch(url, { credentials: 'same-origin', method: 'POST' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
+        console.log(response.json());
+        return response.json();
       })
       .then((data) => {
+        alert("in then")
         this.setState((prevState) => {
           var newComments = prevState.comments.push(data);
           return {comments: newComments}
@@ -137,7 +136,6 @@ class Post extends React.Component {
     // and this.state.owner to the const variable owner
     // humanized time stamp
     var humanized = moment(this.state.timestamp).fromNow(true);
-    console.log(this.state)
     return (
       <div className="posts">
         <ul className='toppost'>
@@ -148,7 +146,7 @@ class Post extends React.Component {
         <img src={this.state.imgUrl} alt="Post" onDoubleClick={this.handleLike}/>
         <Like numLikes={this.state.likes.numLikes} lognameLikedThis={this.state.likes.lognameLikesThis} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
         {this.state.comments.map((comment) => {
-          return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
+          return <Comment comment={comment} commentid={comment.commentid} handleDeleteComment={this.handleDeleteComment}/>
         })}
         <CommentForm handleSubmitComment={this.handleSubmitComment}/>
       </div>

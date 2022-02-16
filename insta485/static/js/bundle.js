@@ -124,13 +124,9 @@ var CommentForm = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
-
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("form", {
         className: "comment-form",
-        onSubmit: function onSubmit() {
-          return _this2.props.handleSubmitComment;
-        }
+        onSubmit: this.props.handleSubmitComment
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("input", {
         type: "text",
         value: this.state.value,
@@ -300,8 +296,6 @@ var Post = /*#__PURE__*/function (_React$Component) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(function (data) {
-        console.log(data.comments);
-
         _this2.setState({
           comments: data.comments,
           created: data.created,
@@ -313,9 +307,6 @@ var Post = /*#__PURE__*/function (_React$Component) {
           postShowUrl: data.postShowUrl,
           postid: data.postid
         });
-
-        console.log('after the setState');
-        console.log(_this2.state.comments);
       })["catch"](function (error) {
         return console.log(error);
       });
@@ -333,8 +324,6 @@ var Post = /*#__PURE__*/function (_React$Component) {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then(function (data) {
-        console.log(_this3.state.likes.lognameLikesThis);
-
         if (_this3.state.likes.lognameLikesThis == false) {
           _this3.setState(function () {
             // increment likes, change lognameLikesThis to true, url to likeid
@@ -384,7 +373,6 @@ var Post = /*#__PURE__*/function (_React$Component) {
     value: function handleDeleteComment(url) {
       var _this5 = this;
 
-      console.log(url);
       fetch(url, {
         credentials: 'same-origin',
         method: 'DELETE'
@@ -408,13 +396,18 @@ var Post = /*#__PURE__*/function (_React$Component) {
     value: function handleSubmitComment() {
       var _this6 = this;
 
-      var makeCommentUrl = '/api/v1/comments/?postid=' + this.state.postid;
-      fetch(makeCommentUrl, {
+      var url = '/api/v1/comments/?postid=' + this.state.postid;
+      alert(url);
+      fetch(url, {
         credentials: 'same-origin',
         method: 'POST'
       }).then(function (response) {
         if (!response.ok) throw Error(response.statusText);
+        console.log(response.json());
+        return response.json();
       }).then(function (data) {
+        alert("in then");
+
         _this6.setState(function (prevState) {
           var newComments = prevState.comments.push(data);
           return {
@@ -434,7 +427,6 @@ var Post = /*#__PURE__*/function (_React$Component) {
       // and this.state.owner to the const variable owner
       // humanized time stamp
       var humanized = moment__WEBPACK_IMPORTED_MODULE_7___default()(this.state.timestamp).fromNow(true);
-      console.log(this.state);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
         className: "posts"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("ul", {
@@ -467,6 +459,7 @@ var Post = /*#__PURE__*/function (_React$Component) {
       }), this.state.comments.map(function (comment) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_comment__WEBPACK_IMPORTED_MODULE_9__["default"], {
           comment: comment,
+          commentid: comment.commentid,
           handleDeleteComment: _this7.handleDeleteComment
         });
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_commentform__WEBPACK_IMPORTED_MODULE_10__["default"], {
