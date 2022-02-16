@@ -131,7 +131,7 @@ def get_post(postid_url_slug):
       (postid_url_slug, )
   ).fetchall()
   # if there is no post, abort
-  if not post:
+  if post is None:
       return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
   # build context and render
   context = {

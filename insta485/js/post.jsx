@@ -26,7 +26,8 @@ class Post extends React.Component {
 
     this.handleLike = this.handleLike.bind(this);
     this.handleUnlike = this.handleUnlike.bind(this);
-    this.handleDeleteComment = this.handleDeleteComment.bind(this)
+    this.handleDeleteComment = this.handleDeleteComment.bind(this);
+    this.handleSubmitComment = this.handleSubmitComment.bind(this);
   }
 
   componentDidMount() {
@@ -108,8 +109,23 @@ class Post extends React.Component {
         if (!response.ok) throw Error(response.statusText);
       })
       .then(() => {
-        this.setState((state) => {
-          var newComments = state.comments.filter((comment) => comment.url != url)
+        this.setState((prevState) => {
+          var newComments = prevState.comments.filter((comment) => comment.url != url)
+          return {comments: newComments}
+        });
+      })
+      .catch((error) => console.log(error));
+  }
+
+  handleSubmitComment() {
+    const makeCommentUrl = '/api/v1/comments/?postid='+this.state.postid;
+    fetch(makeCommentUrl, {credentials: 'same-origin', method: 'POST'})
+      .then((response) => {
+        if (!response.ok) throw Error(response.statusText);
+      })
+      .then((data) => {
+        this.setState((prevState) => {
+          var newComments = prevState.comments.push(data);
           return {comments: newComments}
         });
       })
@@ -134,7 +150,7 @@ class Post extends React.Component {
         {this.state.comments.map((comment) => {
           return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
         })}
-        <CommentForm/>
+        <CommentForm handleSubmitComment={this.handleSubmitComment}/>
       </div>
     );
   }
