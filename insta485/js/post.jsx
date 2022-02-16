@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Like from './like'
-import Comment from './comment'
+import Like from './like';
+import Comment from './comment';
+import CommentForm from './commentform';
 
 class Post extends React.Component {
   /* Display number of image and post owner of a single post
@@ -120,6 +121,7 @@ class Post extends React.Component {
     // and this.state.owner to the const variable owner
     // humanized time stamp
     var humanized = moment(this.state.timestamp).fromNow(true);
+    console.log(this.state)
     return (
       <div className="posts">
         <ul className='toppost'>
@@ -132,6 +134,7 @@ class Post extends React.Component {
         {this.state.comments.map((comment) => {
           return <Comment comment={comment} handleDeleteComment={this.handleDeleteComment}/>
         })}
+        <CommentForm/>
       </div>
     );
   }
@@ -145,47 +148,3 @@ Post.propTypes = {
 };
 
 export default Post;
-/*
-
-  'commentid': commentid,
-  'lognameOwnsThis': True,
-  'owner': flask.session.get('logname'),
-  'ownerShowUrl': '/users/{logname}/'.format(logname=flask.session.get('logname')),
-  'text': text,
-
-<div class="posts">
-<ul>
-    <li><a href="{{ url_for('show_user', user_url_slug=post.owner) }}"><img src="{{ url_for('send_file', filename=post.owner_img_url) }}" alt="Profile picture" class="profilepicture"></a></li>
-    <li><a href="{{ url_for('show_user', user_url_slug=post.owner) }}" class="username"><b>{{post.owner}}</b></a></li>
-    <li><a href="{{ url_for('show_post', post_url_slug=post.postid) }}" class="time">{{post.timestamp}}</a></li>
-</ul>
-<img src="{{ url_for('send_file', filename=post.img_url) }}" alt="Post" style="width:400px; height:400px; position: relative; margin-right: auto; margin-left: auto;">
-{% if post.likes == 1%}
-    <p>1 like</p>
-{% else %}
-    <p>{{post.likes}} likes</p>
-{% endif %}
-{% if post.logname_liked == false %}
-    <form action="{{ url_for('like') }}?target={{ url_for('show_index') }}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="operation" value="like"/>
-        <input type="hidden" name="postid" value="{{post.postid}}"/>
-        <input type="submit" name="like" value="like"/>
-    </form>
-{% else %}
-    <form action="{{ url_for('like') }}?target={{ url_for('show_index') }}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="operation" value="unlike"/>
-        <input type="hidden" name="postid" value="{{post.postid}}"/>
-        <input type="submit" name="unlike" value="unlike"/>
-    </form>
-{% endif %}
-{% for comment in post.comments %}
-    <p><a href="{{ url_for('show_user', user_url_slug=comment.owner) }}"><b>{{comment.owner}}</b></a> {{comment.text}}</p>
-{% endfor %}
-<form action="{{ url_for('comment') }}?target={{ url_for('show_index') }}" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="operation" value="create"/>
-    <input type="hidden" name="postid" value="{{post.postid}}"/>
-    <input type="text" name="text" required/>
-    <input type="submit" name="comment" value="comment"/>
-</form>
-</div>
-*/

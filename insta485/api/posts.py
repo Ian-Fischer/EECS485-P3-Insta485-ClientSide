@@ -139,7 +139,7 @@ def get_post(postid_url_slug):
     'created': post[0]['created'],
     'imgUrl': f'/uploads/{post[0]["im"]}',
     'likes': likes,
-    'owner': flask.session.get('logname'),
+    'owner': post[0]['owner'],
     'ownerImgUrl': f'/uploads/{post[0]["filename"]}',
     'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
     'postShowUrl': f'/posts/{postid_url_slug}/',
