@@ -11,7 +11,7 @@ then
     ./bin/insta485db create
 else 
     echo "Error: databse already exists"
-    exit
+    #exit
 fi
 
 # set her up
