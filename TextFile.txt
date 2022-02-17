@@ -1,0 +1,10 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.10.1, pytest-7.0.0, pluggy-1.0.0
+rootdir: /Users/johnkyle/Desktop/Michigan/EECS/485/p3-insta485-clientside
+collected 15 items
+
+tests/test_rest_api_likes_and_comments.py .....                          [ 33%]
+tests/test_rest_api_posts.py .......                                     [ 80%]
+tests/test_rest_api_simple.py ...                                        [100%]
+
+============================== 15 passed in 0.76s ==============================

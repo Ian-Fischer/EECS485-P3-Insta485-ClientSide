@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>insta485</title>
+        <style>
+            .postPic {
+                width: 500px;
+                height: 500px;
+            }
+            #ian {
+                display: block;
+            }
+            .header {
+                margin-left: auto;
+                margin-right: auto;
+                color: white;
+            }
+            .toppost {
+                font-size: xx-large;
+            }
+            ul {
+                position: sticky;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            li {
+                display: inline-block
+            }
+            li a {
+                color: white;
+                padding: 20px 20px;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .leftstuff {
+                float: right;
+            }
+            body {
+                background: lightgrey;
+                color: white;
+            }
+            .posts {
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 30px;
+                border-radius: 20px;
+                padding: 10px;
+            }
+            .username {
+                float: left;
+                color: white;
+            }
+            .profilepicture {
+                float: left;
+                width: 50px;
+                height: 50px;
+                border-radius: 20px;
+            }
+            .time {
+                color: white;
+                float: right;
+            }
+            .home {
+                text-align: left;
+            }
+            .info {
+                width: 200px;
+                height: 50px;
+            }
+            .posts {
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 30px;
+                border-radius: 20px;
+                padding: 10px;
+            }
+            img {
+                margin-right: auto;
+                margin-left: auto;
+            }
+            .navigation {
+                background-color: lightgray;
+            }
+            .fullcomment {
+                color: white;
+                font-size: medium;
+            }
+            .posts {
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 30px;
+                border-radius: 20px;
+            }
+            .profilepicture {
+                width: 50px;
+                height: 50px;
+            }
+            .box {
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 30px;
+                border-radius: 20px;
+                padding: 10px;
+            }
+            .follow {
+                border-width: 5px;
+                margin-left: auto;
+                margin-right: auto;
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                padding: 10px;
+                margin-top: 20px;
+            }
+            .follower {
+                border-width: 5px;
+                margin-left: auto;
+                margin-right: auto;
+                background-color: rgba(122, 198, 248, 0.678);
+                width: fit-content;
+                height: fit-content;
+                padding: 10px;
+                margin-top: 10px;
+            }
+            .larger_profpic {
+                width: 200px;
+                height: 200px;
+            }
+        </style>
+    </head> 
+    <body>
+        <ul style="background-color: rgb(0, 95, 51, 0.5); border-radius: 10px; font-size: xx-large;">
+            <li><a href="{{ url_for('show_index') }}">I(a)nstagram!</a></li>
+            <li class="leftstuff"><a href="{{ url_for('show_explore') }}">explore</a></li>
+            <li class="leftstuff"><a href="{{ url_for('show_user', user_url_slug=logname) }}">{{logname}}</a></li>
+        </ul>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
