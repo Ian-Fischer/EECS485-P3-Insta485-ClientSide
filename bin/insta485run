@@ -10,7 +10,7 @@ if [ ! -f "var/insta485.sqlite3" ]
 then
     ./bin/insta485db create
 else 
-    echo "Error: databse already exists"
+    echo "Error: database already exists"
     #exit
 fi
 
