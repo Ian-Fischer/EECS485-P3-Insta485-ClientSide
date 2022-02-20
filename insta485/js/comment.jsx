@@ -1,27 +1,35 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-class Comment extends React.Component {
+class Comment extends React.PureComponent {
+  render() {
+    const { comment, handleDeleteComment } = this.props;
 
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <ul>
-                <li><a href={"/users/"+this.props.comment.owner+"/"}><b><p>{this.props.comment.owner}</p></b></a></li>
-                <li><p>{this.props.comment.text}</p></li>
-                { this.props.comment.lognameOwnsThis &&
-                    <li>
-                        <button className="delete-comment-button" onClick={() => this.props.handleDeleteComment(this.props.comment.url)}>
-                            Delete Comment
-                        </button>
-                    </li>
-                }
-            </ul>
-        )
-    }
+    return (
+      <ul>
+        <li><a href={`/users/${comment.owner}/`}><b><p>{comment.owner}</p></b></a></li>
+        <li><p>{comment.text}</p></li>
+        {comment.lognameOwnsThis
+        && (
+        <li>
+          <button type="button" className="delete-comment-button" onClick={() => handleDeleteComment(comment.url)}>
+            Delete Comment
+          </button>
+        </li>
+        )}
+      </ul>
+    );
+  }
 }
 
+Comment.defaultProps = {
+  comment: null,
+  handleDeleteComment: null,
+};
+
+Comment.propTypes = {
+  comment: PropTypes.objectOf(PropTypes.any),
+  handleDeleteComment: PropTypes.func,
+};
 
 export default Comment;

@@ -14,13 +14,13 @@ class Post extends React.Component {
     super(props);
     this.state = {
       comments: [],
-      created: "",
-      imgUrl: "",
+      created: '',
+      imgUrl: '',
       likes: {},
-      owner: "",
-      ownerImgUrl: "",
-      ownerShowUrl: "",
-      postShowUrl: "",
+      owner: '',
+      ownerImgUrl: '',
+      ownerShowUrl: '',
+      postShowUrl: '',
       postid: 0,
     };
 
@@ -56,32 +56,36 @@ class Post extends React.Component {
   }
 
   handleLike() {
-    const makeLikeUrl = '/api/v1/likes/?postid='+this.state.postid;
-    if (this.state.likes.lognameLikesThis == false) {
+    const { likes, postid } = this.state;
+
+    const makeLikeUrl = `/api/v1/likes/?postid=${postid}`;
+    if (likes.lognameLikesThis === false) {
       fetch(makeLikeUrl, { credentials: 'same-origin', method: 'POST' })
         .then((response) => {
           if (!response.ok) throw Error(response.statusText);
           return response.json();
         })
         .then((data) => {
-          if (this.state.likes.lognameLikesThis == false) {
+          if (likes.lognameLikesThis === false) {
             this.setState(() => {
               // increment likes, change lognameLikesThis to true, url to likeid
               const newStateLikes = {
-                numLikes: this.state.likes.numLikes + 1,
+                numLikes: likes.numLikes + 1,
                 lognameLikesThis: true,
-                url: data.url
+                url: data.url,
               };
-              return { likes: newStateLikes};
+              return { likes: newStateLikes };
             });
-        }
+          }
         })
         .catch((error) => console.log(error));
     }
   }
 
   handleUnlike() {
-    const deleteLikeURL = this.state.likes.url
+    const { likes } = this.state;
+
+    const deleteLikeURL = likes.url;
     fetch(deleteLikeURL, { credentials: 'same-origin', method: 'DELETE' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
@@ -89,40 +93,42 @@ class Post extends React.Component {
       .then(() => {
         this.setState(() => {
           // decrement likes, change lognameLikesThis to false, url to null
-          var newStateLikes = {
-            numLikes: this.state.likes.numLikes - 1,
+          const newStateLikes = {
+            numLikes: likes.numLikes - 1,
             lognameLikesThis: false,
-            url: null
-          }
-          return {likes: newStateLikes}
+            url: null,
+          };
+          return { likes: newStateLikes };
         });
       })
       .catch((error) => console.log(error));
   }
 
   handleDeleteComment(url) {
-    fetch(url, { credentials: 'same-origin', method: 'DELETE'})
+    fetch(url, { credentials: 'same-origin', method: 'DELETE' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
       })
       .then(() => {
         this.setState((prevState) => {
-          var newComments = prevState.comments.filter((comment) => comment.url != url)
-          return {comments: newComments}
+          const newComments = prevState.comments.filter((comment) => comment.url !== url);
+          return { comments: newComments };
         });
       })
       .catch((error) => console.log(error));
   }
 
   handleSubmitComment(event, value) {
-    event.preventDefault()
+    event.preventDefault();
     const requestOptions = {
       credentials: 'same-origin',
       method: 'POST',
-      headers: { 'Content-Type': 'application/json'},
-      body: JSON.stringify({'text': value})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: value }),
     };
-    const url = '/api/v1/comments/?postid='+this.state.postid;
+    const { postid } = this.state;
+
+    const url = `/api/v1/comments/?postid=${postid}`;
     fetch(url, requestOptions)
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
@@ -141,20 +147,43 @@ class Post extends React.Component {
     // This line automatically assigns this.state.imgUrl to the const variable imgUrl
     // and this.state.owner to the const variable owner
     // humanized time stamp
-    var humanized = moment(this.state.timestamp).fromNow(true);
+    const {
+      owner,
+      created,
+      ownerImgUrl,
+      imgUrl,
+      comments,
+      ownerShowUrl,
+      postShowUrl,
+      likes,
+    } = this.state;
+    const humanized = moment(created).fromNow(true);
+    const l = {
+      n: likes.numLikes,
+      liked: likes.lognameLikesThis,
+    };
     return (
       <div className="posts">
-        <ul className='toppost'>
-          <li className='leftStuff'><a href={"/users/"+this.state.owner+"/"}><img src={this.state.ownerImgUrl} className="profilepicture" alt="Profile Picture"/></a></li>
-          <li className='leftStuff'><a href={"/users/"+this.state.owner+"/"} className="username"><b>{this.state.owner}</b></a></li>
-          <li><a href={"/posts/"+this.state.postid+"/"}  className="time">{humanized}</a></li>
+        <ul className="toppost">
+          <li className="leftStuff"><a href={ownerShowUrl}><img src={ownerImgUrl} className="profilepicture" alt={`${owner}`} /></a></li>
+          <li className="leftStuff"><a href={ownerShowUrl} className="username"><b>{owner}</b></a></li>
+          <li><a href={postShowUrl} className="time">{humanized}</a></li>
         </ul>
-        <img src={this.state.imgUrl} alt="Post" onDoubleClick={this.handleLike} className="postPic"/>
-        <Like numLikes={this.state.likes.numLikes} lognameLikedThis={this.state.likes.lognameLikesThis} handleLike={this.handleLike} handleUnlike={this.handleUnlike}/>
-        {this.state.comments.map((comment) => {
-          return <Comment comment={comment} key={comment.commentid} handleDeleteComment={this.handleDeleteComment}/>
-        })}
-        <CommentForm handleSubmitComment={this.handleSubmitComment}/>
+        <img src={imgUrl} alt="Post" onDoubleClick={this.handleLike} className="postPic" />
+        <Like
+          numLikes={l.n}
+          lognameLikedThis={l.liked}
+          handleLike={this.handleLike}
+          handleUnlike={this.handleUnlike}
+        />
+        {comments.map((comment) => (
+          <Comment
+            comment={comment}
+            key={comment.commentid}
+            handleDeleteComment={this.handleDeleteComment}
+          />
+        ))}
+        <CommentForm handleSubmitComment={this.handleSubmitComment} />
       </div>
     );
   }

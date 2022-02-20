@@ -1,34 +1,62 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
 // props should have lognameLiked and numLikes
-class Likes extends React.Component {
-    // the number of likes
-    // logname liked it
-    // TODO: button functionality stuff
-    constructor(props) {
-        super(props);
-    }
+class Likes extends React.PureComponent {
+  render() {
+    const {
+      numLikes,
+      lognameLikedThis,
+      handleLike,
+      handleUnlike,
+    } = this.props;
 
-    render() {
-        return(
-            <div>
-                {this.props.numLikes != 1 && <p>{this.props.numLikes} likes</p>}
-                {this.props.numLikes == 1 && <p>{this.props.numLikes} like </p>}
-                {this.props.lognameLikedThis &&
-                    <button className="like-unlike-button" onClick={this.props.handleUnlike}>
-                        Unlike
+    return (
+      <div>
+        {numLikes !== 1 && (
+        <p>
+          {numLikes}
+          {' '}
+          likes
+        </p>
+        )}
+        {numLikes === 1 && (
+        <p>
+          {numLikes}
+          {' '}
+          like
+          {' '}
+        </p>
+        )}
+        {lognameLikedThis
+                    && (
+                    <button type="button" className="like-unlike-button" onClick={handleUnlike}>
+                      Unlike
                     </button>
-                }
-                {!this.props.lognameLikedThis &&
-                    <button className="like-unlike-button" onClick={this.props.handleLike}>
-                        Like
+                    )}
+        {!lognameLikedThis
+                    && (
+                    <button type="button" className="like-unlike-button" onClick={handleLike}>
+                      Like
                     </button>
-                }
-            </div>
-        );
-    }
+                    )}
+      </div>
+    );
+  }
 }
+
+Likes.defaultProps = {
+  numLikes: 0,
+  lognameLikedThis: false,
+  handleLike: null,
+  handleUnlike: null,
+};
+
+Likes.propTypes = {
+  numLikes: PropTypes.number,
+  lognameLikedThis: PropTypes.bool,
+  handleLike: PropTypes.func,
+  handleUnlike: PropTypes.func,
+};
 
 export default Likes;

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Index from './index'
+import Index from './index';
 
 // This method is only called once
 // change to the root of the DOM
