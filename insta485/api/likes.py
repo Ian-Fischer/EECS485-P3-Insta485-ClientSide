@@ -45,6 +45,7 @@ def make_like():
     )
     # commit changes
     connection.commit()
+    # GET THE like again
     likeid = connection.execute(
         'SELECT L.likeid '
         'FROM likes L '
