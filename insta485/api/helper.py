@@ -1,79 +1,83 @@
 """Helper functions."""
 
-"""
-FLASK RESPONSE CODES! 
-bad requests should take form of {'message': 'what was wrong', 'code': flaskcode}
-for good requests, I think 200 for return content, 204 for good delete, but check spec
 
-ex: return flask.jsonify(**response_dict), CODE
-"""
-
-
+import sqlite3
+# import hashlib
+# import uuid
+# import pathlib
 import flask
 import insta485
-import sqlite3
-import hashlib
-import uuid
-import pathlib
 
 
-def get_file_path(filename):
-    """Get uuid file path."""
-    stem = uuid.uuid4().hex
-    suffix = pathlib.Path(filename).suffix
-    uuid_basename = f"{stem}{suffix}"
-    # Save to disk
-    path = insta485.app.config["UPLOAD_FOLDER"]/uuid_basename
-    return path, uuid_basename
+# def get_file_path(filename):
+#     """Get uuid file path."""
+#     stem = uuid.uuid4().hex
+#     suffix = pathlib.Path(filename).suffix
+#     uuid_basename = f"{stem}{suffix}"
+#     # Save to disk
+#     path = insta485.app.config["UPLOAD_FOLDER"]/uuid_basename
+#     return path, uuid_basename
 
 
-def get_salt(password):
-    """Get the salt from the password in the database."""
-    idx = password.find('$')
-    password = password[idx+1:]
-    idx = password.find('$')
-    password = password[:idx]
-    return password
+# def get_salt(password):
+#     """Get the salt from the password in the database."""
+#     idx = password.find('$')
+#     password = password[idx+1:]
+#     idx = password.find('$')
+#     password = password[:idx]
+#     return password
 
 
-def hash_password(password, salt):
-    """Hash a password given salt."""
-    algorithm = 'sha512'
-    hash_obj = hashlib.new(algorithm)
-    password_salted = salt + password
-    hash_obj.update(password_salted.encode('utf-8'))
-    password_hash = hash_obj.hexdigest()
-    password_db_string = "$".join([algorithm, salt, password_hash])
-    return password_db_string
+# def hash_password(password, salt):
+#     """Hash a password given salt."""
+#     algorithm = 'sha512'
+#     hash_obj = hashlib.new(algorithm)
+#     password_salted = salt + password
+#     hash_obj.update(password_salted.encode('utf-8'))
+#     password_hash = hash_obj.hexdigest()
+#     password_db_string = "$".join([algorithm, salt, password_hash])
+#     return password_db_string
 
 
-def new_password_hash(password):
-    """Hash a new password given salt."""
-    algorithm = 'sha512'
-    salt = uuid.uuid4().hex
-    hash_obj = hashlib.new(algorithm)
-    password_salted = salt + password
-    hash_obj.update(password_salted.encode('utf-8'))
-    password_hash = hash_obj.hexdigest()
-    password_db_string = "$".join([algorithm, salt, password_hash])
-    return password_db_string
+# def new_password_hash(password):
+#     """Hash a new password given salt."""
+#     algorithm = 'sha512'
+#     salt = uuid.uuid4().hex
+#     hash_obj = hashlib.new(algorithm)
+#     password_salted = salt + password
+#     hash_obj.update(password_salted.encode('utf-8'))
+#     password_hash = hash_obj.hexdigest()
+#     password_db_string = "$".join([algorithm, salt, password_hash])
+#     return password_db_string
+
+
+def response_dict(status_code):
+    """Return response dictionary."""
+    if status_code == 403:
+        message = 'Forbidden'
+    elif status_code == 404:
+        message = 'Not Found'
+    elif status_code == 204:
+        message = 'No Content'
+    elif status_code == 400:
+        message = 'Bad Request'
+    return {'message': message, 'status_code': status_code}
 
 
 def get_all_comments(postid, connection):
     """Get all comments commented on post with postid."""
-    comments = connection.execute(
-        "SELECT C.owner, C.text, C.commentid "
-        "FROM comments C "
-        "WHERE C.postid = ? ",
-        (postid,)
-    ).fetchall()
-    output = [{'owner': elt['owner'],
-               'text': elt['text'],
-               'commentid': elt['commentid'],
-               'ownerShowUrl': f'/users/{elt["owner"]}/',
-               'lognameOwnsThis': elt['owner'] == flask.session.get('logname'),
-               'url': f'/api/v1/comments/{elt["commentid"]}/'}
-               for elt in comments]
+    comments = insta485.views.helper.comment_query(postid, connection)
+    output = [
+        {
+            'owner': elt['owner'],
+            'text': elt['text'],
+            'commentid': elt['commentid'],
+            'ownerShowUrl': f'/users/{elt["owner"]}/',
+            'lognameOwnsThis': elt['owner'] == flask.session.get('logname'),
+            'url': f'/api/v1/comments/{elt["commentid"]}/'
+        }
+        for elt in comments
+    ]
     output = sorted(output, key=lambda k: k['commentid'])
     return output
 
@@ -95,11 +99,11 @@ def get_likes(postid, connection):
 
 
 def verify_user(username, password):
-    """Takes the given username and password and verifies."""
+    """Take the given username and password and verify."""
     # search for the user
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
-    current_db_password = connection.execute (
+    current_db_password = connection.execute(
         'SELECT U.username, U.password '
         'FROM users U '
         'WHERE U.username = ? ',
@@ -109,19 +113,21 @@ def verify_user(username, password):
     if len(current_db_password) != 1:
         return False
     # user exists, now check password
-    db_user = {'username': current_db_password[0]['username'], 
+    db_user = {'username': current_db_password[0]['username'],
                'password': current_db_password[0]['password']}
-    password = hash_password(password, get_salt(db_user['password']))
+    salt = insta485.views.helper.get_salt(db_user['password'])
+    password = insta485.views.helper.hash_password(password, salt)
     if db_user['password'] != password:
         return False
     return True
 
 
 def check_authentication():
-    """Function to handle the authentication of the user."""
+    """Handle the authentication of the user."""
     # check if already logged in
     if 'logname' in flask.session:
         return True
+
     # get flask session stuff
     if flask.request.form:
         session_username = flask.request.form['username']
@@ -129,7 +135,6 @@ def check_authentication():
         if verify_user(session_username, session_password):
             flask.session['logname'] = session_username
             return True
-        return False
 
     # get http basic authentification stuff
     elif flask.request.authorization:
@@ -138,7 +143,6 @@ def check_authentication():
         if verify_user(http_username, http_password):
             flask.session['logname'] = http_username
             return True
-        return False
 
-    # if neither http or flask session used 
+    # if neither http or flask session used
     return False

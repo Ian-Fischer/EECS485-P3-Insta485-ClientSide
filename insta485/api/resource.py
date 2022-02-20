@@ -2,6 +2,7 @@
 import flask
 import insta485
 
+
 @insta485.app.route('/api/v1/', methods=['GET'])
 def resources():
     """Return resources URLs."""

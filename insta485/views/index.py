@@ -7,10 +7,8 @@ URLs include:
 /uploads/<filename>/
 """
 import sqlite3
-import arrow
 import flask
 import insta485
-from insta485.views.helper import get_all_comments, get_likes
 
 
 @insta485.app.route('/', methods=['GET'])
@@ -50,13 +48,14 @@ def show_index():
     #     for post in user_posts:
     #         likes, logname_liked = get_likes(post['postid'], connection)
     #         comments = get_all_comments(post['postid'], connection)
-    #         timestamp = arrow.get(post['created']).to('US/Eastern').humanize()
+    #         timestamp = arrow.get(post['created']).to('US/Eastern')
+    #         timestamp_humanize = timestamp.humanize()
     #         posts.append({
     #             "postid": post['postid'],
     #             "owner": post['owner'],
     #             "owner_img_url": user_filename,
     #             "img_url": post['pf'],
-    #             "timestamp": timestamp,
+    #             "timestamp": timestamp_humanize,
     #             "likes": len(likes),
     #             "comments": comments,
     #             "logname_liked": logname_liked
@@ -67,7 +66,8 @@ def show_index():
     #     "logname": logname,
     #     "posts": posts
     # }
-    return flask.render_template("index.html", **{'logname': flask.session.get('logname')})
+    logname_dict = {'logname': flask.session.get('logname')}
+    return flask.render_template("index.html", **logname_dict)
 
 
 @insta485.app.route('/explore/', methods=['GET'])

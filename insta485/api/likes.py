@@ -1,13 +1,14 @@
-"""Handles like endpoints."""
-"""
+"""Handles like endpoints.
+
 URLs handled in this file:
 /api/v1/likes/, args ?postid=<postid>, POST
 /api/v1/likes/<likeid>/, DELETE
 """
+
 import sqlite3
 import flask
 import insta485
-from insta485.api.helper import check_authentication
+from insta485.api.helper import check_authentication, response_dict
 
 
 @insta485.app.route('/api/v1/likes/', methods=['POST'])
@@ -16,10 +17,10 @@ def make_like():
     # postid is an arg ?postid=<postid>
     # 1. check authentication
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
+        return flask.jsonify(**response_dict(403)), 403
     postid = flask.request.args.get('postid')
     if not postid:
-        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
+        return flask.jsonify(**response_dict(404)), 404
     # db connection
     connection = insta485.model.get_db()
     connection.row_factory = sqlite3.Row
@@ -37,7 +38,7 @@ def make_like():
         }
         return flask.jsonify(**output), 200
     # insert like into table
-    connection.execute (
+    connection.execute(
         'INSERT into likes(owner, postid) '
         'VALUES (?,?) ',
         (flask.session.get('logname'), postid,)
@@ -62,9 +63,9 @@ def make_like():
 def delete_like(likeid):
     """Delete a like on specified post."""
     if not check_authentication():
-        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
+        return flask.jsonify(**response_dict(403)), 403
     if not likeid:
-        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
+        return flask.jsonify(**response_dict(404)), 404
     # connect to db
     connection = insta485.model.get_db()
     # get the like they are requesting
@@ -76,10 +77,10 @@ def delete_like(likeid):
     ).fetchall()
     # check if the like exists
     if len(like) != 1:
-        return flask.jsonify(**{'message': 'Not Found', 'status_code': 404}), 404
+        return flask.jsonify(**response_dict(404)), 404
     # check if they own the like
     if flask.session.get('logname') != like[0]['owner']:
-        return flask.jsonify(**{'message': 'Forbidden', 'status_code': 403}), 403
+        return flask.jsonify(**response_dict(403)), 403
     # if it exists and they own it, delete it
     connection.execute(
         'DELETE FROM likes '
@@ -88,4 +89,4 @@ def delete_like(likeid):
     )
     # commit changes
     connection.commit()
-    return flask.jsonify(**{'message': 'No Content', 'status_code': 204}), 204
+    return flask.jsonify(**response_dict(204)), 204

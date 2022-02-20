@@ -49,14 +49,20 @@ def new_password_hash(password):
     return password_db_string
 
 
-def get_all_comments(postid, connection):
-    """Get all comments commented on post with postid."""
+def comment_query(postid, connection):
+    """Query comments table for comments on a post with postid."""
     comments = connection.execute(
         "SELECT C.owner, C.text, C.commentid "
         "FROM comments C "
         "WHERE C.postid = ? ",
         (postid,)
     ).fetchall()
+    return comments
+
+
+def get_all_comments(postid, connection):
+    """Get all comments commented on post with postid."""
+    comments = comment_query(postid, connection)
     output = [{'owner': elt['owner'],
                'text': elt['text'],
                'commentid': elt['commentid']} for elt in comments]
