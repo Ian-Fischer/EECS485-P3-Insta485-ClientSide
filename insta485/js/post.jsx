@@ -119,7 +119,6 @@ class Post extends React.Component {
   }
 
   handleSubmitComment(event, value) {
-    event.preventDefault();
     const requestOptions = {
       credentials: 'same-origin',
       method: 'POST',
@@ -141,6 +140,7 @@ class Post extends React.Component {
         });
       })
       .catch((error) => console.log(error));
+    event.preventDefault();
   }
 
   render() {
@@ -157,7 +157,7 @@ class Post extends React.Component {
       postShowUrl,
       likes,
     } = this.state;
-    const humanized = moment(created).fromNow(true);
+    const humanized = moment.utc(created).fromNow();
     const l = {
       n: likes.numLikes,
       liked: likes.lognameLikesThis,

@@ -6,68 +6,20 @@ URLs include:
 /explore/
 /uploads/<filename>/
 """
+from multiprocessing import context
 import sqlite3
 import flask
 import insta485
+from insta485.api.helper import check_authentication
 
 
 @insta485.app.route('/', methods=['GET'])
 def show_index():
     """Display / route."""
-    # Connect to database
-    # connection = insta485.model.get_db()
-    # connection.row_factory = sqlite3.Row
-    # if not in session, login, True if O.K.
-    if 'logname' not in flask.session:
+    if not check_authentication():
         return flask.redirect(flask.url_for('login'))
-    # # get all following
-    # logname = flask.session['logname']
-    # l_following = connection.execute(
-    #     "SELECT F.username2 "
-    #     "FROM following F "
-    #     "WHERE F.username1 = ? ",
-    #     (logname, )
-    # ).fetchall()
-    # l_following = [elt['username2'] for elt in l_following]
-    # l_following.append(logname)
-    # posts = []
-    # # get all following posts
-    # for user in l_following:
-    #     user_posts = connection.execute(
-    #         "SELECT P.postid, P.filename AS pf, P.owner, P.created "
-    #         "FROM posts P "
-    #         "WHERE P.owner = ? ",
-    #         (user, )
-    #     ).fetchall()
-    #     user_filename = connection.execute(
-    #         "SELECT U.filename "
-    #         "FROM users U "
-    #         "WHERE U.username = ? ",
-    #         (user, )
-    #     ).fetchall()[0]['filename']
-    #     for post in user_posts:
-    #         likes, logname_liked = get_likes(post['postid'], connection)
-    #         comments = get_all_comments(post['postid'], connection)
-    #         timestamp = arrow.get(post['created']).to('US/Eastern')
-    #         timestamp_humanize = timestamp.humanize()
-    #         posts.append({
-    #             "postid": post['postid'],
-    #             "owner": post['owner'],
-    #             "owner_img_url": user_filename,
-    #             "img_url": post['pf'],
-    #             "timestamp": timestamp_humanize,
-    #             "likes": len(likes),
-    #             "comments": comments,
-    #             "logname_liked": logname_liked
-    #         })
-    # # build context
-    # posts = sorted(posts, key=lambda p: p['postid'], reverse=True)
-    # context = {
-    #     "logname": logname,
-    #     "posts": posts
-    # }
-    logname_dict = {'logname': flask.session.get('logname')}
-    return flask.render_template("index.html", **logname_dict)
+    context = {'logname': flask.session.get('logname')}
+    return flask.render_template("index.html", **context)
 
 
 @insta485.app.route('/explore/', methods=['GET'])
