@@ -137,7 +137,7 @@ def get_post(postid_url_slug):
         'likes': likes,
         'owner': post[0]['owner'],
         'ownerImgUrl': f'/uploads/{post[0]["filename"]}',
-        'ownerShowUrl': f'/users/{flask.session.get("logname")}/',
+        'ownerShowUrl': f'/users/{post[0]["owner"]}/',
         'postShowUrl': f'/posts/{postid_url_slug}/',
         'postid': postid_url_slug,
         'url': f'/api/v1/posts/{postid_url_slug}/'
