@@ -6,7 +6,6 @@ URLs include:
 /explore/
 /uploads/<filename>/
 """
-from multiprocessing import context
 import sqlite3
 import flask
 import insta485

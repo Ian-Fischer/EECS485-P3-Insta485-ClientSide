@@ -67,10 +67,10 @@ class Post extends React.Component {
         })
         .then((data) => {
           if (likes.lognameLikesThis === false) {
-            this.setState(() => {
+            this.setState(prevState => {
               // increment likes, change lognameLikesThis to true, url to likeid
               const newStateLikes = {
-                numLikes: likes.numLikes + 1,
+                numLikes: prevState.likes.numLikes + 1,
                 lognameLikesThis: true,
                 url: data.url,
               };
@@ -91,10 +91,10 @@ class Post extends React.Component {
         if (!response.ok) throw Error(response.statusText);
       })
       .then(() => {
-        this.setState(() => {
+        this.setState(prevState => {
           // decrement likes, change lognameLikesThis to false, url to null
           const newStateLikes = {
-            numLikes: likes.numLikes - 1,
+            numLikes: prevState.likes.numLikes - 1,
             lognameLikesThis: false,
             url: null,
           };

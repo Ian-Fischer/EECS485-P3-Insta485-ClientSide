@@ -48,8 +48,8 @@ class Index extends React.Component {
         })
         .then((data) => {
           // update the state
-          this.setState(() => {
-            const newResults = results.concat(data.results);
+          this.setState(prevState => {
+            const newResults = prevState.results.concat(data.results);
             const newNext = data.next;
             return { results: newResults, next: newNext };
           });
