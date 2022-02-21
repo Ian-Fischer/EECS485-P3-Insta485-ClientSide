@@ -38,7 +38,7 @@ class Index extends React.Component {
     const requestOptions = {
       credentials: 'same-origin',
     };
-    const { results, next } = this.state;
+    const { next } = this.state;
     // check to see if there is a next to get
     if (next != null) {
       fetch(next, requestOptions)
@@ -48,7 +48,7 @@ class Index extends React.Component {
         })
         .then((data) => {
           // update the state
-          this.setState(prevState => {
+          this.setState((prevState) => {
             const newResults = prevState.results.concat(data.results);
             const newNext = data.next;
             return { results: newResults, next: newNext };

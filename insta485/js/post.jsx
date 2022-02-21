@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Like from './like';
+import Likes from './like';
 import Comment from './comment';
 import CommentForm from './commentform';
 
@@ -66,17 +66,16 @@ class Post extends React.Component {
           return response.json();
         })
         .then((data) => {
-          if (likes.lognameLikesThis === false) {
-            this.setState(prevState => {
-              // increment likes, change lognameLikesThis to true, url to likeid
-              const newStateLikes = {
-                numLikes: prevState.likes.numLikes + 1,
-                lognameLikesThis: true,
-                url: data.url,
-              };
-              return { likes: newStateLikes };
-            });
-          }
+          this.setState((prevState) => {
+            // increment likes, change lognameLikesThis to true, url to likeid
+            const newStateLikes = {
+              numLikes: prevState.likes.numLikes + 1,
+              lognameLikesThis: true,
+              url: data.url,
+            };
+            console.log(newStateLikes);
+            return { likes: newStateLikes };
+          });
         })
         .catch((error) => console.log(error));
     }
@@ -91,7 +90,7 @@ class Post extends React.Component {
         if (!response.ok) throw Error(response.statusText);
       })
       .then(() => {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           // decrement likes, change lognameLikesThis to false, url to null
           const newStateLikes = {
             numLikes: prevState.likes.numLikes - 1,
@@ -158,10 +157,6 @@ class Post extends React.Component {
       likes,
     } = this.state;
     const humanized = moment.utc(created).fromNow();
-    const l = {
-      n: likes.numLikes,
-      liked: likes.lognameLikesThis,
-    };
     return (
       <div className="posts">
         <ul className="toppost">
@@ -170,9 +165,9 @@ class Post extends React.Component {
           <li><a href={postShowUrl} className="time">{humanized}</a></li>
         </ul>
         <img src={imgUrl} alt="Post" onDoubleClick={this.handleLike} className="postPic" />
-        <Like
-          numLikes={l.n}
-          lognameLikedThis={l.liked}
+        <Likes
+          numLikes={likes.numLikes}
+          lognameLikedThis={likes.lognameLikesThis}
           handleLike={this.handleLike}
           handleUnlike={this.handleUnlike}
         />
